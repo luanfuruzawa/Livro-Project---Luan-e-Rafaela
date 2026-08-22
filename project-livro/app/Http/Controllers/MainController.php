@@ -11,5 +11,9 @@ class MainController extends Controller
     }
     public function homePage(){
         return view('home_page');
+    }public function novoLivro(){
+        return view('novo_livro');
+    }public function pesquisarLivro(){
+        return view('pesquisar_livro');
     }
 }

@@ -1,5 +1,5 @@
 <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-black shadow-lg vh-100" style="width: 260px;">
-    <a href="#" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+    <a href="home_page" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
         <i class="fa-solid fa-book-open fa-xl me-2 text-white-50"></i>
         <span class="fs-4 fw-bold">LivrosApp</span>
     </a>
@@ -12,7 +12,7 @@
             </div>
         </li>
         <li class="nav-item">
-            <a href="#"
+            <a href="pesquisar_livro"
                 class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
                 <i class="fa-solid fa-magnifying-glass me-3 text-white-50"></i>
                 <span>Pesquisar</span>
@@ -20,7 +20,7 @@
         </li>
         <li>
             <!-- Apenas para ADM -->
-            <a href="#"
+            <a href="novo_livro"
                 class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
                 <i class="fa-solid fa-plus me-3 text-white-50"></i>
                 <span>Criar Livro</span>

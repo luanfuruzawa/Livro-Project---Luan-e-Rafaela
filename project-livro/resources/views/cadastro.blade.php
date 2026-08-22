@@ -4,13 +4,19 @@
         <div class="row w-100 justify-content-center">
             <div class="col-md-4">
                 <div class="card p-4 shadow bg-white border-0 rounded-3">
-                    <h3 class="text-center mb-4 text-dark fw-bold">Login</h3>
+                    <h3 class="text-center mb-4 text-dark fw-bold">Cadastro</h3>
+
                     <form action="home_page" method="">
                         @csrf
                         <div class="mb-3">
                             <label for="email" class="form-label text-dark fw-semibold">E-mail:</label>
                             <input type="email" name="email" id="email" class="form-control bg-light text-dark"
                                 placeholder="Digite seu e-mail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label text-dark fw-semibold">Usuário:</label>
+                            <input type="text" name="usuario" id="usuario" class="form-control bg-light text-dark"
+                                placeholder="Digite seu usuário" required>
                         </div>
                         <div class="mb-3">
                             <label for="senha" class="form-label text-dark fw-semibold">Senha:</label>
@@ -21,8 +27,8 @@
                             <button type="submit" class="btn btn-dark fw-bold py-2 shadow-sm">Entrar</button>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="cadastro" class="text-secondary small text-decoration-none">
-                                Não tem uma conta? <span class="text-success fw-bold">Cadastre-se</span>
+                            <a href="login" class="text-secondary small text-decoration-none">
+                                Já tem uma conta? <span class="text-success fw-bold">login</span>
                             </a>
                         </div>
                     </form>

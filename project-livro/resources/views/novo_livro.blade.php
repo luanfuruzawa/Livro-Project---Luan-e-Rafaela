@@ -5,7 +5,7 @@
     <div class="flex-grow-1 p-4 min-vh-100">
         <h2 class="fw-bold text-white mb-4">Criar Novo Livro</h2>
         <div class="card bg-white border-0 shadow-sm p-4 rounded-3" style="max-width: 800px;">
-            <form action="#" method="POST" enctype="multipart/form-data">
+            <form action="#" method="POST">
                 @csrf
                 <div class="row g-3">
                     <div class="col-12">
@@ -44,9 +44,7 @@
                 </div>
                 <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-light">
                     <button type="reset" class="btn btn-light btn-lg px-4 fw-semibold text-dark">Limpar</button>
-                    <button type="submit" class="btn btn-dark btn-lg px-4 fw-semibold">
-                        <i class="fa-solid fa-plus me-2"></i>Salvar Livro
-                    </button>
+                    <button type="submit" class="btn btn-dark btn-lg px-4 fw-semibold"><i class="fa-solid fa-plus me-2"></i>Salvar Livro</button>
                 </div>
             </form>
         </div>

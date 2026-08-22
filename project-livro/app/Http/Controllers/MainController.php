@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 
 class MainController extends Controller
 {
-    public function index(){
+    public function login(){
         return view('login');
+    }public function cadastro(){
+        return view('cadastro');
     }
     public function homePage(){
         return view('home_page');

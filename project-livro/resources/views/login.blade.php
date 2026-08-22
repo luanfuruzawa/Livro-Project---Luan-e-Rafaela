@@ -21,7 +21,7 @@
                             <button type="submit" class="btn btn-dark fw-bold py-2 shadow-sm">Entrar</button>
                         </div>
                         <div class="text-center mt-3">
-                            <a href="cadastro" class="text-secondary small text-decoration-none">
+                            <a href="/" class="text-secondary small text-decoration-none">
                                 Não tem uma conta? <span class="text-success fw-bold">Cadastre-se</span>
                             </a>
                         </div>

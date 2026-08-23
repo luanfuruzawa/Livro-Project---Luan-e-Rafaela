@@ -22,10 +22,16 @@
             </a>
         </li>
         <li>
-            <a href="#"
+            <a href="{{ route('carrinho.index') }}"
                 class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
                 <i class="fa-solid fa-cart-shopping me-3 text-white-50"></i>
                 <span>Carrinho</span>
+
+                @if(session('carrinho') && count(session('carrinho')) > 0)
+                    <span class="badge bg-danger rounded-pill fs-7">
+                        {{ array_sum(array_column(session('carrinho'), 'quantidade')) }}
+                    </span>
+                @endif
             </a>
         </li>
     </ul>

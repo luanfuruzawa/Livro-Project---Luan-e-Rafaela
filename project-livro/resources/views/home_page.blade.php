@@ -31,7 +31,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col">
+                <!-- <div class="col">
                     <div class="card bg-white border-0 shadow-sm p-3 h-100 rounded-3">
                         <div class="row g-3 h-100">
                             <div class="col-4 d-flex align-items-center">
@@ -53,7 +53,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

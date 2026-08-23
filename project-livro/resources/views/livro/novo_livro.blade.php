@@ -33,7 +33,7 @@
                         </div>
                     </div>
                     <div class="col-12 col-md-3">
-                        <label for="estoque" class="form-label fw-bold text-dark fs-5">Stock Inicial</label>
+                        <label for="estoque" class="form-label fw-bold text-dark fs-5">Estoque Inicial</label>
                         <input type="number" id="estoque" name="estoque" min="0" class="form-control form-control-lg text-dark bg-light" placeholder="0" required>
                     </div>
                     <div class="col-12 mt-4">

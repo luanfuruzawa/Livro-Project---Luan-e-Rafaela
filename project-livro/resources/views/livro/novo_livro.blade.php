@@ -38,7 +38,7 @@
                                     @php $generoSelecionado = old('genero', $livro->genero ?? ''); @endphp
                                     <option value="" disabled {{ $generoSelecionado == '' ? 'selected' : '' }}>Selecione uma
                                         categoria...</option>
-                                    @foreach(['Ficção', 'Romance', 'Fantasia', 'Aventura', 'Terror', 'Biografia'] as $cat)
+                                    @foreach(['Ficcao', 'Romance', 'Suspense', 'Terror', 'Drama', 'Fantasia', 'Misterio', 'Biografia', 'Aventura'] as $cat)
                                         <option value="{{ $cat }}" {{ $generoSelecionado == $cat ? 'selected' : '' }}>{{ $cat }}
                                         </option>
                                     @endforeach

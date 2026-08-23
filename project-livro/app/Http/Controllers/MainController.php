@@ -107,4 +107,9 @@ class MainController extends Controller
     {
         return view('livro.pesquisar_livro');
     }
+    public function create()
+    {
+        return view('register');
+    }
+
 }

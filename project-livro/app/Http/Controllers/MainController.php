@@ -86,8 +86,15 @@ class MainController extends Controller
         if (!$user || !password_verify($request->input('senha'), $user->password)) {
             return redirect()->back()->withInput()->with('login_error', 'E-mail ou senha incorretos!');
         }
+
         $user->save();
-        session(['user' => ['id' => $user->id,'username' => $user->username,'nivel_acesso' => $user->nivel_acesso]
+
+        session([
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'nivel_acesso' => $user->nivel_acesso,
+            ]
         ]);
 
         return redirect()->route('home_page');
@@ -100,10 +107,39 @@ class MainController extends Controller
         $nivel_acesso = (session('user')['nivel_acesso']) ?? 'user';
         $livros = Livro::all();
         return view('home_page', compact('livros', 'nivel_acesso'));
+        return view('home_page');
     }
     public function novoLivro()
     {
         return view('livro.novo_livro');
+    }
+    public function guardarLivro(Request $request)
+    {
+        $request->validate([
+            'titulo' => 'required',
+            'genero' => 'required',
+            'preco' => 'required|numeric',
+            'estoque' => 'required|integer',
+            'imagem' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+
+        ]);
+
+        $imagem = $request->file('imagem');
+        // Define um nome único para o arquivo (ex: 171829301_annie.png)
+        $nomeImagem = time() . '_' . $imagem->getClientOriginalName();
+        // Salva a foto na pasta
+        $imagem->move(public_path('images'), $nomeImagem);
+
+        Livro::create([
+            'titulo' => $request->titulo,
+            'genero' => $request->genero,
+            'preco' => $request->preco,
+            'estoque' => $request->estoque,
+            'caminho_imagem' => $nomeImagem,
+
+        ]);
+        return redirect()->route('home_page');
+
     }
     public function pesquisarLivro()
     {

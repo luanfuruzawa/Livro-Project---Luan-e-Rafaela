@@ -22,7 +22,7 @@
                                 <div>
                                     <h4 class="card-title fw-bold text-dark mb-2 text-truncate fs-4">Annie With an E</h4>
                                     <div class="d-flex align-items-center gap-3 flex-wrap">
-                                        <span class="fs-5 fw-bold text-secondary">15,90 €</span>
+                                        <span class="fs-5 fw-bold text-secondary">15,90 R$</span>
                                         <span
                                             class="badge bg-success-subtle text-success border border-success-subtle fw-semibold px-3 py-2 fs-6">
                                             Em stock</span>
@@ -34,11 +34,19 @@
                                         <i class="fa-solid fa-cart-plus me-2"></i>
                                         Adicionar
                                     </button>
+                                    
+                                    <button type="button"
+                                        class="btn btn-dark btn-sm d-inline-flex align-items-center px-3 py-2 fw-semibold">
+                                        <i class="fa-solid fa-pen-to-square me-2"></i>
+                                        Editar
+                                    </button>
+                                   
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+<<<<<<< HEAD
                 <!-- <div class="col">
                             <div class="card bg-white border-0 shadow-sm p-3 h-100 rounded-3">
                                 <div class="row g-3 h-100">
@@ -63,6 +71,8 @@
                                 </div>
                             </div> 
                 </div> -->
+=======
+>>>>>>> classe-livro
             </div>
         </div>
     </div>

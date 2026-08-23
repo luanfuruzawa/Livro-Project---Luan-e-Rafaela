@@ -28,12 +28,21 @@
                         </div>
                     </div>
                     <div class="text-end mt-3 gap-2 d-flex justify-content-end">
-                    <button type="button"
-                        class="btn btn-dark btn-sm d-inline-flex align-items-center px-3 py-2 fw-semibold"
-                        {{ $livro->estoque <= 0 ? 'disabled' : '' }}>
-                        <i class="fa-solid fa-cart-plus me-2"></i>
-                        Adicionar
-                     </button>
+                    <form action="{{ route('carrinho.adicionar') }}" method="POST">
+    @csrf
+
+    <input type="hidden" name="livro_id" value="{{ $livro->id }}">
+    <input type="hidden" name="titulo" value="{{ $livro->titulo }}">
+    <input type="hidden" name="preco" value="{{ $livro->preco }}">
+    <input type="hidden" name="imagem" value="{{ $livro->caminho_imagem }}">
+
+    <button type="submit"
+        class="btn btn-dark btn-sm d-inline-flex align-items-center px-3 py-2 fw-semibold"
+        {{ $livro->estoque <= 0 ? 'disabled' : '' }}>
+        <i class="fa-solid fa-cart-plus me-2"></i>
+        Adicionar
+    </button>
+</form>
                     <!--Usa o app service provider para ver se o usuario é um admin -->
                     @can('admin')
                     @include('componentes.botao-editar')

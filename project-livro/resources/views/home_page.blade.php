@@ -26,7 +26,7 @@
                     @endforeach
                 </div>
             @else
-                <div class="card border-0 shadow-sm rounded-3 text-center p-5 my-5 bg-white">
+                <div class="carfd border-0 shadow-sm rounded-3 text-center p-5 my-5 bg-white">
                     <div class="py-5">
                         <div class="mb-3 text-secondary">
                             <i class="fa-solid fa-folder-open fa-4x opacity-25"></i>

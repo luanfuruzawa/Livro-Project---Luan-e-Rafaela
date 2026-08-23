@@ -87,6 +87,8 @@ class MainController extends Controller
             return redirect()->back()->withInput()->with('login_error', 'E-mail ou senha incorretos!');
         }
 
+        $user->save();
+
         session([
             'user' => [
                 'id' => $user->id,
@@ -99,9 +101,123 @@ class MainController extends Controller
     }
     public function homePage()
     {
+        $nivel_acesso = (session('user')['nivel_acesso']) ?? 'user';
         $livros = Livro::all();
-        return view('home_page', compact('livros'));
+        return view('home_page', compact('livros', 'nivel_acesso'));
+        return view('home_page');
     }
-    
+    public function novoLivro()
+    {
+        return view('livro.novo_livro');
+    }
+    public function guardarLivro(Request $request)
+    {
+        $request->validate([
+            'titulo' => 'required',
+            'genero' => 'required',
+            'preco' => 'required|numeric',
+            'estoque' => 'required|integer',
+            'imagem' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
 
+        ]);
+
+        $imagem = $request->file('imagem');
+        // Define um nome único para o arquivo (ex: 171829301_annie.png)
+        $nomeImagem = time() . '_' . $imagem->getClientOriginalName();
+        // Salva a foto na pasta
+        $imagem->move(public_path('images'), $nomeImagem);
+
+        Livro::create([
+            'titulo' => $request->titulo,
+            'genero' => $request->genero,
+            'preco' => $request->preco,
+            'estoque' => $request->estoque,
+            'caminho_imagem' => $nomeImagem,
+
+        ]);
+        return redirect()->route('home_page');
+
+    }
+
+    public function pesquisarLivro(Request $request)
+    {
+        $titulo = $request->input('titulo-livro');
+        $genero = $request->input('genero');
+        $query = Livro::query();
+        if (!empty($titulo)) {
+            $query->where('titulo', 'LIKE', '%' . $titulo . '%');
+        }
+        // daqui pra frente adiciona como se fosse um 'AND' no banco de dados
+        if (!empty($genero)) {
+            $query->where('genero', $genero);
+        }
+        $livros = $query->get();
+
+        return view('livro.pesquisar_livro', compact('livros'));
+    }
+
+    // Exibe a tela do carrinho
+    public function verCarrinho()
+    {
+        $carrinho = session()->get('carrinho', []);
+        return view('usuario.carrinho', compact('carrinho'));
+    }
+
+    public function adicionarCarrinho(Request $request)
+    {
+        $carrinho = session()->get('carrinho', []);
+        $id = $request->input('livro_id');
+
+        if (isset($carrinho[$id])) {
+            $carrinho[$id]['quantidade']++;
+        } else {
+            $carrinho[$id] = [
+                'id' => $id,
+                'titulo' => $request->input('titulo'),
+                'preco' => (float) $request->input('preco'),
+                'imagem' => $request->input('imagem'),
+                'quantidade' => 1
+            ];
+        }
+
+        session()->put('carrinho', $carrinho);
+        return redirect()->back()->with('sucesso', 'Livro adicionado ao carrinho!');
+    }
+
+    public function atualizarCarrinho(Request $request)
+    {
+        $carrinho = session()->get('carrinho', []);
+        $id = $request->input('livro_id');
+        $quantidade = (int) $request->input('quantidade');
+
+        if (isset($carrinho[$id])) {
+            if ($quantidade > 0) {
+                $carrinho[$id]['quantidade'] = $quantidade;
+            } else {
+                unset($carrinho[$id]);
+            }
+            session()->put('carrinho', $carrinho);
+        }
+
+        return redirect()->route('carrinho.index');
+    }
+
+    public function removerCarrinho(Request $request)
+    {
+        $carrinho = session()->get('carrinho', []);
+        $id = $request->input('livro_id');
+
+        if (isset($carrinho[$id])) {
+            unset($carrinho[$id]);
+            session()->put('carrinho', $carrinho);
+        }
+
+        return redirect()->route('carrinho.index');
+    }
+
+    public function limparCarrinho()
+    {
+        session()->forget('carrinho');
+        return redirect()->route('carrinho.index');
+    }
 }

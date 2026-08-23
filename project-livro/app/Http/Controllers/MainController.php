@@ -138,28 +138,22 @@ class MainController extends Controller
         return redirect()->route('home_page');
 
     }
-    public function pesquisarLivro()
-    {
-        return view('livro.pesquisar_livro');
-    public function pesquisarLivro(Request $request)
-{
-    $titulo = $request->input('titulo-livro');
-    $genero = $request->input('genero');
-    $query = Livro::query();
-    if (!empty($titulo)) {
-        $query->where('titulo', 'LIKE', '%' . $titulo . '%');
-    }
-    // daqui pra frente adiciona como se fosse um 'AND' no banco de dados
-    if (!empty($genero)) {
-        $query->where('genero', $genero);
-    }
-    $livros = $query->get();
 
-    return view('livro.pesquisar_livro', compact('livros'));
-}
-    public function create()
+    public function pesquisarLivro(Request $request)
     {
-        return view('register');
+        $titulo = $request->input('titulo-livro');
+        $genero = $request->input('genero');
+        $query = Livro::query();
+        if (!empty($titulo)) {
+            $query->where('titulo', 'LIKE', '%' . $titulo . '%');
+        }
+        // daqui pra frente adiciona como se fosse um 'AND' no banco de dados
+        if (!empty($genero)) {
+            $query->where('genero', $genero);
+        }
+        $livros = $query->get();
+
+        return view('livro.pesquisar_livro', compact('livros'));
     }
 
 }

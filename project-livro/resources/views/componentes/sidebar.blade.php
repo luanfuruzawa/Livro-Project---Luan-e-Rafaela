@@ -21,16 +21,6 @@
                 <span>Pesquisar</span>
             </a>
         </li>
-        @if((session('user')['nivel_acesso'] ?? 'User') === 'Admin')
-            <li>
-
-                <a href="/novo-livro"
-                    class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
-                    <i class="fa-solid fa-plus me-3 text-white-50"></i>
-                    <span>Criar Livro</span>
-                </a>
-            </li>
-        @endif
         <li>
             <a href="#"
                 class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">

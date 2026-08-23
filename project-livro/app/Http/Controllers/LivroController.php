@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 
 class LivroController extends Controller
 {
+    public function novoLivro()
+    {
+        return view('livro.novo_livro');
+    }
     public function guardarLivro(Request $request)
     {
         $request->validate([

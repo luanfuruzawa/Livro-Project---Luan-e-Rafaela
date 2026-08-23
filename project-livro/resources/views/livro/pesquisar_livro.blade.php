@@ -27,14 +27,15 @@
                                 Categoria</label>
                             <select id="filtro_genero" name="genero" class="form-select form-control-lg text-dark bg-light">
                                 <option value="" selected disabled>Selecione uma categoria...</option>
-                                <option value="ficcao">Ficção Científica</option>
-                                <option value="romance">Romance</option>
-                                <option value="suspense">Suspense</option>
-                                <option value="terror">Terror</option>
-                                <option value="drama">Drama</option>
-                                <option value="fantasia">Fantasia</option>
-                                <option value="misterio">Mistério / Thriller</option>
-                                <option value="biografia">Biografia</option>
+                                <option value="Ficcao">Ficção Científica</option>
+                                <option value="Romance">Romance</option>
+                                <option value="Suspense">Suspense</option>
+                                <option value="Terror">Terror</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Fantasia">Fantasia</option>
+                                <option value="Misterio">Mistério / Thriller</option>
+                                <option value="Biografia">Biografia</option>
+                                <option value="Aventura">Aventura</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-2 d-grid">

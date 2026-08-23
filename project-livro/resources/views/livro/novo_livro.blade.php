@@ -14,13 +14,10 @@
                     </a>
                     <h2 class="fw-bold text-dark m-0">Cadastrar Novo Livro</h2>
                 </div>
-
-
+                <hr>
                 <div class="card border-0 shadow-sm rounded-3 bg-white p-4 p-md-5">
                     <form action="{{ route('livros.guardar') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-
-                        <!-- Nome do Livro -->
                         <div class="mb-4">
                             <label for="titulo" class="form-label fw-semibold text-dark fs-6">Nome do Livro</label>
                             <input type="text" class="form-control form-control-lg @error('titulo') is-invalid @enderror"
@@ -30,9 +27,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
                         <div class="row g-4 mb-4">
-                            <!-- Categoria -->
                             <div class="col-md-6">
                                 <label for="genero" class="form-label fw-semibold text-dark fs-6">Categoria / Gênero</label>
                                 <select class="form-select form-select-lg @error('genero') is-invalid @enderror" id="genero"
@@ -53,8 +48,6 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <!-- Preço -->
                             <div class="col-md-3">
                                 <label for="preco" class="form-label fw-semibold text-dark fs-6">Preço (R$)</label>
                                 <input type="number" step="0.01"
@@ -64,8 +57,6 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <!-- Estoque -->
                             <div class="col-md-3">
                                 <label for="estoque" class="form-label fw-semibold text-dark fs-6">Estoque</label>
                                 <input type="number"
@@ -76,8 +67,6 @@
                                 @enderror
                             </div>
                         </div>
-
-                        <!-- Upload da Foto do Livro -->
                         <div class="mb-5">
                             <label for="imagem" class="form-label fw-semibold text-dark fs-6">Capa do Livro (Imagem)</label>
                             <input type="file" class="form-control form-control-lg @error('imagem') is-invalid @enderror"
@@ -87,8 +76,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
-                        <!-- Botões -->
                         <div class="d-flex justify-content-end gap-3 pt-3 border-top">
                             <button type="reset" class="btn btn-light border px-4 py-2 fw-semibold fs-6">Limpar</button>
                             <button type="submit" class="btn btn-dark px-5 py-2 fw-semibold fs-6 shadow-sm">

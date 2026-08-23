@@ -102,9 +102,6 @@ class MainController extends Controller
         $livros = Livro::all();
         return view('home_page', compact('livros'));
     }
-    public function novoLivro()
-    {
-        return view('livro.novo_livro');
-    }
+    
 
 }

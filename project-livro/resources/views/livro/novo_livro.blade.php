@@ -4,6 +4,7 @@
     @include('componentes.sidebar')
     <div class="flex-grow-1 p-4 min-vh-100">
         <h2 class="fw-bold text-white mb-4">Criar Novo Livro</h2>
+        <hr>
         <div class="card bg-white border-0 shadow-sm p-4 rounded-3" style="max-width: 800px;">
             <form action="#" method="POST">
                 @csrf

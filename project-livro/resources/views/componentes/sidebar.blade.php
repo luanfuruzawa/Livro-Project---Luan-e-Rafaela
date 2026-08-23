@@ -15,16 +15,16 @@
             </div>
         </li>
         <li class="nav-item">
-            <a href="pesquisar_livro"
+            <a href="pesquisar-livro"
                 class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
                 <i class="fa-solid fa-magnifying-glass me-3 text-white-50"></i>
                 <span>Pesquisar</span>
             </a>
         </li>
-        @if($nivel_acesso == 'Admin')
+        @if((session('user')['nivel_acesso'] ?? 'User') === 'Admin')
             <li>
 
-                <a href="/novo_livro"
+                <a href="/novo-livro"
                     class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
                     <i class="fa-solid fa-plus me-3 text-white-50"></i>
                     <span>Criar Livro</span>

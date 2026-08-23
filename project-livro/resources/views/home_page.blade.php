@@ -7,7 +7,7 @@
                 class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
                 <h2 class="fw-bold text-dark mb-0">Catálogo de Livros</h2>
             </div>
-
+            <hr>
             <div class="row row-cols-1 row-cols-md-2 g-4">
                 @forelse ($livros as $livro)
                     <div class="col">

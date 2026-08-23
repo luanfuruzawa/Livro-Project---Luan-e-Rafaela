@@ -106,9 +106,5 @@ class MainController extends Controller
     {
         return view('livro.novo_livro');
     }
-    public function create()
-    {
-        
-    }
 
 }

@@ -14,6 +14,8 @@ Route::middleware([CheckIsLogged::class])->group(function () {
     Route::post('/livros/guardar', [LivroController::class, 'guardarLivro'])->name('livros.guardar');
     Route::get('/pesquisar-livro', [LivroController::class, 'pesquisarLivro'])->name('pesquisar.livro');
     Route::delete('/livros/{id}', [LivroController::class, 'destroy'])->name('livros.destroy');
+    Route::get('/carrinho.adicionar', [MainController::class, 'carrinhoadicionar'])->name('carrinho.adicionar');
+
 });
 
 Route::middleware([CheckIsNotLogged::class])->group(function () {

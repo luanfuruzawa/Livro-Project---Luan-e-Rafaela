@@ -8,8 +8,13 @@
                 <div>
                     <h3 class="fw-bold text-dark m-0">Catálogo de Livros</h3>
                     <small class="text-muted">
-                        Mostrando {{ $livros->count() }}
-                        {{ $livros->count() == 1 ? 'livro cadastrado' : 'livros cadastrados' }}
+                        @if(strtolower($nivel_acesso) === 'admin')
+                            Mostrando {{ $livros->count() }}
+                            {{ $livros->count() == 1 ? 'livro cadastrado' : 'livros cadastrados' }}
+                        @else
+                            Confira {{ $livros->count() }}
+                            {{ $livros->count() == 1 ? 'livro disponível' : 'livros disponíveis' }} no nosso catálogo
+                        @endif
                     </small>
                 </div>
                 @can('admin')

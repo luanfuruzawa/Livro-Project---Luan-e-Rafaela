@@ -9,8 +9,13 @@ class Livro extends Model
 {
     /** @use HasFactory<\Database\Factories\LivroFactory> */
     use HasFactory;
+    public function emCarrinhosDe()
+    {
+        return $this->belongsToMany(User::class, 'carrinhos')
+            ->withPivot('quantidade');
+    }
     protected $fillable = [
-        'titulo',         
+        'titulo',
         'genero',
         'preco',
         'estoque',

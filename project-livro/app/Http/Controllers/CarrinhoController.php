@@ -2,51 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
+use App\Models\Carrinho;
 use Illuminate\Http\Request;
 
 class CarrinhoController extends Controller
 {
-    // Exibe a tela do carrinho
     public function verCarrinho()
     {
-        $carrinho = session()->get('carrinho', []);
+        $userId = Auth::id();
+        $usuario = session('user');
+        $userId = $usuario['id'] ?? null;
+
+
+        $carrinho = Carrinho::with('livro')
+            ->where('user_id', $userId)
+            ->get();
+
         return view('usuario.carrinho', compact('carrinho'));
     }
 
     public function adicionarCarrinho(Request $request)
     {
-        $carrinho = session()->get('carrinho', []);
-        $id = $request->input('livro_id');
+        $usuario = session('user');
+        $userId = $usuario['id'] ?? null;
 
-        if (isset($carrinho[$id])) {
-            $carrinho[$id]['quantidade']++;
-        } else {
-            $carrinho[$id] = [
-                'id' => $id,
-                'titulo' => $request->input('titulo'),
-                'preco' => (float) $request->input('preco'),
-                'imagem' => $request->input('imagem'),
-                'quantidade' => 1
-            ];
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Faça login para adicionar ao carrinho.');
         }
 
-        session()->put('carrinho', $carrinho);
-        return redirect()->back()->with('sucesso', 'Livro adicionado ao carrinho!');
+        $livroId = $request->input('livro_id');
+        $quantidade = (int) $request->input('quantidade', 1);
+
+        $itemExistente = Carrinho::where('user_id', $userId)
+            ->where('livro_id', $livroId)
+            ->first();
+
+        if ($itemExistente) {
+            $itemExistente->increment('quantidade', $quantidade);
+        } else {
+            Carrinho::create([
+                'user_id' => $userId,
+                'livro_id' => $livroId,
+                'quantidade' => $quantidade,
+            ]);
+        }
+
+        return redirect()->route('carrinho.index')->with('success', 'Livro adicionado ao carrinho!');
     }
 
     public function atualizarCarrinho(Request $request)
     {
-        $carrinho = session()->get('carrinho', []);
-        $id = $request->input('livro_id');
+        $usuario = session('user');
+        $userId = $usuario['id'] ?? null;
+
+        $livroId = $request->input('livro_id');
         $quantidade = (int) $request->input('quantidade');
 
-        if (isset($carrinho[$id])) {
+        $item = Carrinho::where('user_id', $userId)->where('livro_id', $livroId)->first();
+
+        if ($item) {
             if ($quantidade > 0) {
-                $carrinho[$id]['quantidade'] = $quantidade;
+                $item->update(['quantidade' => $quantidade]);
             } else {
-                unset($carrinho[$id]);
+                $item->delete();
             }
-            session()->put('carrinho', $carrinho);
         }
 
         return redirect()->route('carrinho.index');
@@ -54,20 +74,22 @@ class CarrinhoController extends Controller
 
     public function removerCarrinho(Request $request)
     {
-        $carrinho = session()->get('carrinho', []);
-        $id = $request->input('livro_id');
+        $usuario = session('user');
+        $userId = $usuario['id'] ?? null;
+        $livroId = $request->input('livro_id');
 
-        if (isset($carrinho[$id])) {
-            unset($carrinho[$id]);
-            session()->put('carrinho', $carrinho);
-        }
+        Carrinho::where('user_id', $userId)->where('livro_id', $livroId)->delete();
 
         return redirect()->route('carrinho.index');
     }
 
     public function limparCarrinho()
     {
-        session()->forget('carrinho');
+        $usuario = session('user');
+        $userId = $usuario['id'] ?? null;
+
+        Carrinho::where('user_id', $userId)->delete();
+
         return redirect()->route('carrinho.index');
     }
 }

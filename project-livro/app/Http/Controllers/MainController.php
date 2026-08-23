@@ -51,7 +51,6 @@ class MainController extends Controller
                 'nivel_acesso' => $user->nivel_acesso
             ]
         ]);
-
         return redirect()->route('home_page');
     }
 

@@ -33,22 +33,13 @@
                             <input type="number" id="preco" name="preco" step="0.01" min="0" class="form-control form-control-lg text-dark bg-light" placeholder="0,00" required>
                         </div>
                     </div>
-                    <div class="col-12 col-md-3">
-                        <label for="estoque" class="form-label fw-bold text-dark fs-5">Estoque Inicial</label>
-                        <input type="number" id="estoque" name="estoque" min="0" class="form-control form-control-lg text-dark bg-light" placeholder="0" required>
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-light">
+                        <button type="reset" class="btn btn-light btn-lg px-4 fw-semibold text-dark">Limpar</button>
+                        <button type="submit" class="btn btn-dark btn-lg px-4 fw-semibold"><i
+                                class="fa-solid fa-plus me-2"></i>Salvar Livro</button>
                     </div>
-                    <div class="col-12 mt-4">
-                        <label for="imagem" class="form-label fw-bold text-dark fs-5">Capa do Livro (Imagem)</label>
-                        <input type="file" id="imagem" name="imagem" class="form-control text-dark bg-light" accept="image/*">
-                        <div class="form-text text-secondary">Selecione um ficheiro de imagem guardado no seu computador.</div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top border-light">
-                    <button type="reset" class="btn btn-light btn-lg px-4 fw-semibold text-dark">Limpar</button>
-                    <button type="submit" class="btn btn-dark btn-lg px-4 fw-semibold"><i class="fa-solid fa-plus me-2"></i>Salvar Livro</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>
 @endsection

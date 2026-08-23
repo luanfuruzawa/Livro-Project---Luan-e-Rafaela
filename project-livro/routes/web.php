@@ -10,6 +10,7 @@ Route::middleware([CheckIsLogged::class])->group(function () {
     Route::get('/home_page', [MainController::class, 'homePage'])->name('home_page');
     Route::get('/logout', [MainController::class, 'logout'])->name('logout');
     Route::get('/novo-livro', [MainController::class, 'novoLivro'])->name('novo.livro');
+    Route::post('/livros/guardar', [MainController::class, 'guardarLivro'])->name('livros.guardar');
     Route::get('/pesquisar-livro', [MainController::class, 'pesquisarLivro'])->name('pesquisar.livro');
 });
 

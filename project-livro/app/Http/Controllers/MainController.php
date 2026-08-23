@@ -153,7 +153,9 @@ class MainController extends Controller
         }
         $livros = $query->get();
 
-        return view('livro.pesquisar_livro', compact('livros'));
+
+        // Passa $titulo e $genero para manter o estado do input/select na view
+        return view('livro.pesquisar_livro', compact('livros', 'titulo', 'genero'));
     }
 
     // Exibe a tela do carrinho

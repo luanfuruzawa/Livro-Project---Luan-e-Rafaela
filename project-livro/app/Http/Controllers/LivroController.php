@@ -16,10 +16,13 @@ class LivroController extends Controller
             'preco' => 'required|numeric',
             'estoque' => 'required|integer',
             'imagem' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+
         ]);
 
         $imagem = $request->file('imagem');
+        // Define um nome único para o arquivo (ex: 171829301_annie.png)
         $nomeImagem = time() . '_' . $imagem->getClientOriginalName();
+        // Salva a foto na pasta
         $imagem->move(public_path('images'), $nomeImagem);
 
         Livro::create([
@@ -28,9 +31,10 @@ class LivroController extends Controller
             'preco' => $request->preco,
             'estoque' => $request->estoque,
             'caminho_imagem' => $nomeImagem,
-        ]);
 
+        ]);
         return redirect()->route('home_page');
+
     }
     public function pesquisarLivro(Request $request)
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Livro;
 use Hash;
 use Illuminate\Http\Request;
 
@@ -40,9 +41,8 @@ class MainController extends Controller
         $user->password = Hash::make($request->input('senha'));
 
         // nivel de acesso definido
-        $user->nivel_acesso = 'user';
+        $user->nivel_acesso = 'User';
 
-        //$user->last_login = now();  -> desnecessário
         $user->save();
         session([
             'user' => [
@@ -81,23 +81,25 @@ class MainController extends Controller
             ]
         );
 
-        // $user = User::where('email', $request->input('email'))
-        //     ->whereNull('deleted_at')
-        //     ->first();
+        $user = User::where('email', $request->input('email'))->first();
 
-        // if (!$user || !password_verify($request->input('senha'), $user->password)) {
-        //     return redirect()->back()->withInput()->with('login_error', 'Username ou password incorretos!');
-        // }
-
-        // $user->last_login = now();
-        // $user->save();
-        // session(['user' => ['id' => $user->id, 'username' => $user->username]]);
+        if (!$user || !password_verify($request->input('senha'), $user->password)) {
+            return redirect()->back()->withInput()->with('login_error', 'E-mail ou senha incorretos!');
+        }
+        $user->save();
+        session(['user' => ['id' => $user->id,'username' => $user->username,'nivel_acesso' => $user->nivel_acesso]
+        ]);
 
         return redirect()->route('home_page');
     }
     public function homePage()
     {
-        return view('home_page');
+        if (!session()->has('user')) {
+            return redirect()->route('login');
+        }
+        $nivel_acesso = (session('user')['nivel_acesso']) ?? 'user';
+        $livros = Livro::all();
+        return view('home_page', compact('livros', 'nivel_acesso'));
     }
     public function novoLivro()
     {

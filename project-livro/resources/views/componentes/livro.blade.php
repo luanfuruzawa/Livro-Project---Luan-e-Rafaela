@@ -45,7 +45,7 @@
 </form>
                     <!--Usa o app service provider para ver se o usuario é um admin -->
                     @can('admin')
-                    @include('componentes.botao-editar')
+                    @include('componentes.botao-editar', ['livro' => $livro])
                     @include('componentes.botao-remover', ['rota' => route('livros.destroy', $livro->id)])
                     @endcan
                 </div>

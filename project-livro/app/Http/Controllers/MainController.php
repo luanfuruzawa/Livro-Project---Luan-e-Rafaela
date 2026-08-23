@@ -97,6 +97,7 @@ class MainController extends Controller
     }
     public function homePage()
     {
+        return view('home_page');
     }
     public function novoLivro()
     {

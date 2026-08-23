@@ -8,20 +8,25 @@
             <div class="container-fluid" style="max-width: 1000px;">
 
                 <!-- Cabeçalho -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="fw-bold text-dark m-0">Meu Carrinho</h2>
-                        <small class="text-muted">Confira os itens selecionados antes de finalizar</small>
-                    </div>
+                <div class="card border-0 shadow-sm rounded-3 bg-white p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="fw-bold text-dark m-0">
+                                @include('componentes.botao-voltar')
+                                Carrinho de {{ session('user')['username'] ?? 'Usuário' }}
+                            </h2>
+                            <small class="text-muted">Confira os itens selecionados antes de finalizar</small>
+                        </div>
 
-                    @if(count($carrinho) > 0)
-                        <form action="{{ route('carrinho.limpar') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-danger btn-sm px-3 fw-semibold">
-                                <i class="fa-solid fa-trash me-1"></i> Esvaziar
-                            </button>
-                        </form>
-                    @endif
+                        @if(count($carrinho) > 0)
+                            <form action="{{ route('carrinho.limpar') }}" method="POST" class="m-0">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger btn-sm px-3 fw-semibold">
+                                    <i class="fa-solid fa-trash me-1"></i> Esvaziar
+                                </button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
 
                 <!-- Listagem do Carrinho -->
@@ -42,16 +47,16 @@
                                         </thead>
                                         <tbody>
                                             @php $totalGeral = 0; @endphp
-                                            @foreach($carrinho as $id => $item)
-                                                @php 
-                                                                                            $subtotal = $item['preco'] * $item['quantidade'];
+                                            @foreach($carrinho as $item)
+                                                @php
+                                                    $subtotal = $item->livro->preco * $item->quantidade;
                                                     $totalGeral += $subtotal;
                                                 @endphp
                                                 <tr>
                                                     <td>
                                                         <div class="d-flex align-items-center gap-3">
-                                                            @if($item['imagem'])
-                                                                <img src="{{ asset('images/' . $item['imagem']) }}"
+                                                            @if(!empty($item->livro->caminho_imagem))
+                                                                <img src="{{ asset('images/' . $item->livro->caminho_imagem) }}"
                                                                     class="rounded-2 shadow-sm"
                                                                     style="width: 45px; height: 60px; object-fit: cover;">
                                                             @else
@@ -62,19 +67,19 @@
                                                             @endif
                                                             <div>
                                                                 <h6 class="fw-bold text-dark mb-0 text-truncate"
-                                                                    style="max-width: 180px;">{{ $item['titulo'] }}</h6>
+                                                                    style="max-width: 180px;">{{ $item->livro->titulo }}</h6>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td class="text-center fw-semibold text-dark">
-                                                        R$ {{ number_format($item['preco'], 2, ',', '.') }}
+                                                        R$ {{ number_format($item->livro->preco, 2, ',', '.') }}
                                                     </td>
                                                     <td class="text-center">
                                                         <form action="{{ route('carrinho.atualizar') }}" method="POST"
                                                             class="d-inline-flex">
                                                             @csrf
-                                                            <input type="hidden" name="livro_id" value="{{ $id }}">
-                                                            <input type="number" name="quantidade" value="{{ $item['quantidade'] }}"
+                                                            <input type="hidden" name="livro_id" value="{{ $item->livro_id }}">
+                                                            <input type="number" name="quantidade" value="{{ $item->quantidade }}"
                                                                 min="1" class="form-control form-control-sm text-center fw-bold"
                                                                 style="width: 60px;" onchange="this.form.submit()">
                                                         </form>
@@ -83,7 +88,7 @@
                                                         <form action="{{ route('carrinho.remover') }}" method="POST"
                                                             class="d-inline">
                                                             @csrf
-                                                            <input type="hidden" name="livro_id" value="{{ $id }}">
+                                                            <input type="hidden" name="livro_id" value="{{ $item->livro_id }}">
                                                             <button type="submit" class="btn btn-light text-danger btn-sm border-0">
                                                                 <i class="fa-solid fa-xmark fs-5"></i>
                                                             </button>
@@ -115,8 +120,9 @@
 
                                 <div class="d-flex justify-content-between mb-4">
                                     <span class="fs-5 fw-bold text-dark">Total:</span>
-                                    <span class="fs-4 fw-bold text-primary">R$
-                                        {{ number_format($totalGeral, 2, ',', '.') }}</span>
+                                    <span class="fs-4 fw-bold text-primary">
+                                        R$ {{ number_format($totalGeral, 2, ',', '.') }}
+                                    </span>
                                 </div>
 
                                 <button class="btn btn-dark btn-lg w-100 fw-semibold shadow-sm mb-2">
@@ -144,7 +150,7 @@
                         </div>
                     </div>
                 @endif
-                s
+
             </div>
         </div>
     </div>

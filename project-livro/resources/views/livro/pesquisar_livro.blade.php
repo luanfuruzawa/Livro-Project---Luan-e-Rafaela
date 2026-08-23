@@ -4,9 +4,12 @@
     <div class="d-flex w-100">
         @include('componentes.sidebar')
         <div class="flex-grow-1 p-4 min-vh-100 bg-secondary-subtle">
-            <h2
-                class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25 text-dark fw-bold">
-                Pesquisar Livros</h2>
+            <div class="bg-white p-3 rounded-3 shadow-sm mb-4 border d-flex align-items-center">
+                @include('componentes.botao-voltar')
+                <h2 class="fw-bold text-dark m-0 ms-3">
+                    Pesquisar Livros
+                </h2>
+            </div>
             <hr>
             <div class="card bg-white border-0 shadow-sm p-4 mb-4 rounded-3">
                 <form method="GET">

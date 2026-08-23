@@ -78,6 +78,7 @@ class LivroController extends Controller
 
 public function update(Request $request, $id)
 {
+    
     $livro = Livro::findOrFail($id);
     $request->validate([
         'titulo' => 'required|string|max:255',

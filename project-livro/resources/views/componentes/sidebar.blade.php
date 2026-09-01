@@ -27,9 +27,16 @@
                 <i class="fa-solid fa-cart-shopping me-3 text-white-50"></i>
                 <span>Carrinho</span>
 
-                @if(session('carrinho') && count(session('carrinho')) > 0)
+                @php
+                    $userId = session('user')['id'];
+                    $totalItens = \App\Models\Carrinho::where('user_id', $userId)
+                        ->whereHas('livro')
+                        ->sum('quantidade');
+                @endphp
+
+                @if($totalItens > 0)
                     <span class="badge bg-danger rounded-pill fs-7">
-                        {{ array_sum(array_column(session('carrinho'), 'quantidade')) }}
+                        {{ $totalItens }}
                     </span>
                 @endif
             </a>

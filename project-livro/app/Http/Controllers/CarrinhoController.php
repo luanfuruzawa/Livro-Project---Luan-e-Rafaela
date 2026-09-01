@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Carrinho;
+use App\Models\Livro;
 use Illuminate\Http\Request;
 
 class CarrinhoController extends Controller

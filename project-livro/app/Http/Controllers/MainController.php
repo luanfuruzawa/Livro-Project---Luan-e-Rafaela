@@ -99,12 +99,11 @@ class MainController extends Controller
         return redirect()->route('home_page');
     }
     public function homePage()
-    {
-        $nivel_acesso = (session('user')['nivel_acesso']) ?? 'user';
-        $livros = Livro::all();
-        return view('home_page', compact('livros', 'nivel_acesso'));
-        return view('home_page');
-    }
+{
+    $nivel_acesso = (session('user')['nivel_acesso']) ?? 'user';
+    $livros = Livro::simplePaginate(12);
+    return view('home_page', compact('livros', 'nivel_acesso'));
+}
     public function novoLivro()
     {
         return view('livro.novo_livro');
@@ -138,24 +137,7 @@ class MainController extends Controller
 
     }
 
-    public function pesquisarLivro(Request $request)
-    {
-        $titulo = $request->input('titulo-livro');
-        $genero = $request->input('genero');
-        $query = Livro::query();
-        if (!empty($titulo)) {
-            $query->where('titulo', 'LIKE', '%' . $titulo . '%');
-        }
-        // daqui pra frente adiciona como se fosse um 'AND' no banco de dados
-        if (!empty($genero)) {
-            $query->where('genero', $genero);
-        }
-        $livros = $query->get();
-
-
-        // Passa $titulo e $genero para manter o estado do input/select na view
-        return view('livro.pesquisar_livro', compact('livros', 'titulo', 'genero'));
-    }
+    
 
     // Exibe a tela do carrinho
     public function verCarrinho()

@@ -41,24 +41,25 @@ class LivroController extends Controller
 
     }
     public function pesquisarLivro(Request $request)
-    {
-        $titulo = $request->input('titulo-livro');
-        $genero = $request->input('genero');
-
-        $query = Livro::query();
-
-        if (!empty($titulo)) {
-            $query->where('titulo', 'LIKE', '%' . $titulo . '%');
-        }
-
-        if (!empty($genero)) {
-            $query->where('genero', $genero);
-        }
-
-        $livros = $query->get();
-
-        return view('livro.pesquisar_livro', compact('livros'));
+{
+    $titulo = $request->input('titulo-livro');
+    $genero = $request->input('genero');
+    
+    $query = Livro::query();
+    
+    if (!empty($titulo)) {
+        $query->where('titulo', 'LIKE', '%' . $titulo . '%');
     }
+    
+    if (!empty($genero)) {
+        $query->where('genero', $genero);
+    }
+    
+    $livros = $query->simplePaginate(6)->appends($request->query());
+
+    // Passa $titulo e $genero para manter o estado na view
+    return view('livro.pesquisar_livro', compact('livros', 'titulo', 'genero'));
+}
     public function destroy($id)
     {
         $livro = Livro::findOrFail($id);

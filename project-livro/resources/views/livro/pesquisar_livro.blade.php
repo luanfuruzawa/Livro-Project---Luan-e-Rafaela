@@ -27,27 +27,18 @@
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
-                            <label for="filtro_genero" class="form-label fw-bold text-dark fs-5">Filtrar por
-                                Categoria</label>
+                            <label for="filtro_genero" class="form-label fw-bold text-dark fs-5">Filtrar por Categoria</label>
                             <select id="filtro_genero" name="genero" class="form-select form-control-lg text-dark bg-light">
-                                <option value="" {{ empty($genero ?? request('genero')) ? 'selected' : '' }}>Todas as
-                                    categorias</option>
-                                <option value="Ficcao" @selected(($genero ?? request('genero')) == 'Ficcao')>Ficção Científica
-                                </option>
-                                <option value="Romance" @selected(($genero ?? request('genero')) == 'Romance')>Romance
-                                </option>
-                                <option value="Suspense" @selected(($genero ?? request('genero')) == 'Suspense')>Suspense
-                                </option>
+                                <option value="" {{ empty($genero ?? request('genero')) ? 'selected' : '' }}>Todas as categorias</option>
+                                <option value="Ficcao" @selected(($genero ?? request('genero')) == 'Ficcao')>Ficção Científica</option>
+                                <option value="Romance" @selected(($genero ?? request('genero')) == 'Romance')>Romance</option>
+                                <option value="Suspense" @selected(($genero ?? request('genero')) == 'Suspense')>Suspense</option>
                                 <option value="Terror" @selected(($genero ?? request('genero')) == 'Terror')>Terror</option>
                                 <option value="Drama" @selected(($genero ?? request('genero')) == 'Drama')>Drama</option>
-                                <option value="Fantasia" @selected(($genero ?? request('genero')) == 'Fantasia')>Fantasia
-                                </option>
-                                <option value="Misterio" @selected(($genero ?? request('genero')) == 'Misterio')>Mistério /
-                                    Thriller</option>
-                                <option value="Biografia" @selected(($genero ?? request('genero')) == 'Biografia')>Biografia
-                                </option>
-                                <option value="Aventura" @selected(($genero ?? request('genero')) == 'Aventura')>Aventura
-                                </option>
+                                <option value="Fantasia" @selected(($genero ?? request('genero')) == 'Fantasia')>Fantasia</option>
+                                <option value="Misterio" @selected(($genero ?? request('genero')) == 'Misterio')>Mistério / Thriller</option>
+                                <option value="Biografia" @selected(($genero ?? request('genero')) == 'Biografia')>Biografia</option>
+                                <option value="Aventura" @selected(($genero ?? request('genero')) == 'Aventura')>Aventura</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-2 d-grid">
@@ -55,10 +46,11 @@
                                 Buscar
                             </button>
                         </div>
-
                     </div>
                 </form>
             </div>
+
+            <!-- Listagem de Livros -->
             <div class="row row-cols-1 row-cols-md-2 g-4">
                 @forelse ($livros as $livro)
                     @include('componentes.livro', ['livro' => $livro])
@@ -69,8 +61,20 @@
                 @endforelse
             </div>
 
+            <!-- Estrutura de Paginação Corrigida Isolada e Forçada para Baixo -->
+            @if(method_exists($livros, 'total') || method_exists($livros, 'hasPages'))
+                @if($livros->hasPages())
+                    <div class="row w-100 m-0 clearfix" style="margin-top: 20px !important; margin-bottom: 30px !important;">
+                        <div class="col-12 d-flex justify-content-center">
+                            <div class="shadow-sm p-2 bg-white rounded-3 border">
+                                {{ $livros->links() }}
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endif
+
         </div>
-    </div>
     </div>
 
 @endsection

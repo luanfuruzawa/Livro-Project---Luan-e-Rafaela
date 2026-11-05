@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Livro;
 use Hash;
 use Illuminate\Http\Request;
+use App\Support\ActivityLog;
 
 class MainController extends Controller
 {
@@ -51,6 +52,7 @@ class MainController extends Controller
                 'nivel_acesso' => $user->nivel_acesso
             ]
         ]);
+        ActivityLog::write('auth.registered', ['user_id' => $user->id]);
         return redirect()->route('home_page');
     }
 
@@ -61,7 +63,7 @@ class MainController extends Controller
 
     public function logout()
     {
-
+        ActivityLog::write('auth.logged_out');
         session()->forget('user');
 
         return redirect()->route('login');
@@ -83,6 +85,7 @@ class MainController extends Controller
         $user = User::where('email', $request->input('email'))->first();
 
         if (!$user || !password_verify($request->input('senha'), $user->password)) {
+            ActivityLog::write('auth.login_failed', [], 'warning');
             return redirect()->back()->withInput()->with('login_error', 'E-mail ou senha incorretos!');
         }
 
@@ -96,6 +99,7 @@ class MainController extends Controller
             ]
         ]);
 
+        ActivityLog::write('auth.logged_in', ['user_id' => $user->id]);
         return redirect()->route('home_page');
     }
     public function homePage()

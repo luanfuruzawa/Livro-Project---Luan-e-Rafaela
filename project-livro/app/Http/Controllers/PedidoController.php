@@ -7,6 +7,7 @@ use App\Models\PedidoItem;
 use App\Models\Carrinho;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Support\ActivityLog;
 
 class PedidoController extends Controller
 {
@@ -44,6 +45,7 @@ class PedidoController extends Controller
         $itensCarrinho = Carrinho::with('livro')->where('user_id', $userId)->get();
 
         if ($itensCarrinho->isEmpty()) {
+            ActivityLog::write('order.empty_cart', [], 'warning');
             return redirect()->back()->with('error', 'Seu carrinho está vazio.');
         }
 
@@ -81,6 +83,11 @@ class PedidoController extends Controller
         });
 
         // Redireciona para a listagem se tudo correr bem
+        ActivityLog::write('order.completed', [
+            'pedido_id' => $pedido->id,
+            'item_count' => $itensCarrinho->count(),
+            'valor_total' => $pedido->valor_total,
+        ]);
         return redirect()->route('pedidos.index')->with('success', "Pedido #{$pedido->id} finalizado com sucesso!");
     }
 }

@@ -52,6 +52,14 @@ return [
 
     'channels' => [
 
+        'activity' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/activity.log'),
+            'level' => env('ACTIVITY_LOG_LEVEL', 'info'),
+            'days' => (int) env('ACTIVITY_LOG_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),

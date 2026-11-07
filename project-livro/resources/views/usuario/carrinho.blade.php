@@ -16,6 +16,11 @@
                         {{ $message }}
                     </div>
                 @enderror
+                @error('estoque')
+                    <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+                        {{ $message }}
+                    </div>
+                @enderror
 
                 <!-- Cabeçalho -->
                 <div class="card border-0 shadow-sm rounded-3 bg-white p-4 mb-4">

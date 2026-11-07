@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Carrinho;
 use App\Models\Cartao;
+use App\Models\PedidoItem;
 use App\Models\User;
 use App\Support\ActivityLog;
 use Illuminate\Http\UploadedFile;
@@ -64,7 +65,9 @@ class ActivityLoggingTest extends StoreTestCase
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
         $success = $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertRedirect('/pedidos');
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
-        $book->delete();
+        PedidoItem::creating(function () {
+            throw new \RuntimeException('Falha ao gravar item.');
+        });
         $failure = $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertStatus(500);
 
         foreach ([[$success, 'order.completed', 'INFO', 302], [$failure, 'application.exception', 'ERROR', 500]] as [$response, $event, $level, $status]) {
@@ -192,13 +195,16 @@ class ActivityLoggingTest extends StoreTestCase
         $cartao = $this->demonstrationCardFor($user);
         $book = $this->book();
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
-        $book->delete();
+        PedidoItem::creating(function () {
+            throw new \RuntimeException('Falha ao gravar item.');
+        });
         $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertStatus(500);
+        $this->assertEquals(5, $book->fresh()->estoque);
         $this->assertDatabaseCount('pedidos', 0);
         $this->assertDatabaseCount('pedido_itens', 0);
         $this->assertDatabaseCount('carrinhos', 1);
         $this->assertStringContainsString('application.exception', $this->logs());
-        $this->assertStringContainsString('PedidoController.php', $this->logs());
+        $this->assertStringContainsString('"exception_class":"RuntimeException"', $this->logs());
         $this->assertStringContainsString('"status":500', $this->logs());
         $this->assertStringNotContainsString('order.completed', $this->logs());
         $this->assertStringNotContainsString('Stack trace', $this->logs());

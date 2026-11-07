@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Carrinho;
 use App\Models\Cartao;
+use App\Models\PedidoItem;
 use App\Models\User;
 use Spatie\Activitylog\Models\Activity;
 use Tests\Support\StoreTestCase;
@@ -117,6 +118,8 @@ class HistoricoTest extends StoreTestCase
         $this->assertSame(1, Activity::inLog('pedidos')->forEvent('updated')->count());
         $this->assertSame(1, Activity::inLog('itens')->forEvent('created')->count());
         $this->assertSame(1, Activity::inLog('carrinho')->forEvent('deleted')->count());
+        $this->assertEquals(3, $book->fresh()->estoque);
+        $this->assertSame(1, Activity::inLog('livros')->forEvent('updated')->count());
         foreach (Activity::all() as $entry) {
             $this->assertSame($user->id, $entry->causer_id);
             $this->assertSame($response->headers->get('X-Request-ID'), $entry->getExtraProperty('request_id'));
@@ -129,9 +132,12 @@ class HistoricoTest extends StoreTestCase
         $card = $this->card($user);
         $book = $this->book();
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
-        $book->delete();
         Activity::query()->delete();
+        PedidoItem::creating(function () {
+            throw new \RuntimeException('Falha ao gravar item.');
+        });
         $this->post('/pedido/finalizar', ['cartao_id' => $card->id])->assertStatus(500);
+        $this->assertEquals(5, $book->fresh()->estoque);
         $this->assertDatabaseCount('pedidos', 0);
         $this->assertDatabaseCount('activity_log', 0);
         $this->assertDatabaseCount('carrinhos', 1);

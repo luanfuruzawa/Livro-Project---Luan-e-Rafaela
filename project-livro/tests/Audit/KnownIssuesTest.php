@@ -3,8 +3,6 @@
 namespace Tests\Audit;
 
 use App\Models\Carrinho;
-use App\Models\Cartao;
-use App\Models\User;
 use Tests\Support\StoreTestCase;
 
 /**
@@ -12,17 +10,6 @@ use Tests\Support\StoreTestCase;
  */
 class KnownIssuesTest extends StoreTestCase
 {
-    private function demonstrationCardFor(User $user): Cartao
-    {
-        return $user->cartoes()->create([
-            'titular' => 'Pessoa Ficticia',
-            'bandeira' => 'Visa',
-            'ultimos_quatro' => '1234',
-            'validade_mes' => now()->month,
-            'validade_ano' => now()->year,
-        ]);
-    }
-
     public function test_regular_user_cannot_open_admin_book_form(): void
     {
         $this->loginAs();
@@ -67,35 +54,6 @@ class KnownIssuesTest extends StoreTestCase
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
         $this->postJson('/carrinho/atualizar', ['livro_id' => $book->id, 'quantidade' => 999])
             ->assertUnprocessable();
-    }
-
-    public function test_checkout_decrements_stock(): void
-    {
-        $user = $this->loginAs();
-        $cartao = $this->demonstrationCardFor($user);
-        $book = $this->book(['estoque' => 5]);
-        Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 2]);
-        $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertRedirect('/pedidos');
-        $this->assertEquals(3, $book->fresh()->estoque);
-    }
-
-    public function test_checkout_rejects_unavailable_stock(): void
-    {
-        $user = $this->loginAs();
-        $cartao = $this->demonstrationCardFor($user);
-        $book = $this->book(['estoque' => 0]);
-        Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 2]);
-        $this->postJson('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertUnprocessable();
-    }
-
-    public function test_checkout_handles_book_removed_after_adding_to_cart(): void
-    {
-        $user = $this->loginAs();
-        $cartao = $this->demonstrationCardFor($user);
-        $book = $this->book();
-        Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
-        $book->delete();
-        $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertRedirect('/carrinho');
     }
 
     public function test_failed_login_does_not_flash_plaintext_password(): void

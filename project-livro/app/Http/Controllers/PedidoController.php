@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Pedido;
 use App\Models\PedidoItem;
 use App\Models\Carrinho;
+use App\Models\Livro;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use App\Support\ActivityLog;
 
 class PedidoController extends Controller
@@ -42,12 +45,9 @@ class PedidoController extends Controller
             return redirect()->route('login')->with('error', 'Você precisa estar logado para finalizar o pedido.');
         }
 
-        // Busca itens do carrinho com os dados dos livros relacionados
-        $itensCarrinho = Carrinho::with('livro')->where('user_id', $userId)->get();
-
-        if ($itensCarrinho->isEmpty()) {
+        if (!Carrinho::where('user_id', $userId)->exists()) {
             ActivityLog::write('order.empty_cart', [], 'warning');
-            return redirect()->back()->with('error', 'Seu carrinho está vazio.');
+            return redirect()->route('carrinho.index')->with('error', 'Seu carrinho está vazio.');
         }
 
         $validated = $request->validate([
@@ -62,10 +62,48 @@ class PedidoController extends Controller
             'cartao_id.exists' => 'O cartão selecionado não pertence à sua conta.',
         ]);
 
-        // Executa tudo dentro de uma transação sem blindagem de try/catch para expor o erro real
-        $pedido = DB::transaction(function () use ($userId, $itensCarrinho, $validated) {
-            
-            // 1. Cria o Pedido pai
+        $resultado = DB::transaction(function () use ($userId, $validated) {
+            // Serializa a finalização do mesmo carrinho.
+            User::whereKey($userId)->lockForUpdate()->firstOrFail();
+            $itensCarrinho = Carrinho::where('user_id', $userId)
+                ->orderBy('livro_id')->orderBy('id')->lockForUpdate()->get();
+
+            if ($itensCarrinho->isEmpty()) {
+                return null;
+            }
+
+            $quantidades = [];
+            foreach ($itensCarrinho as $item) {
+                if ($item->quantidade < 1) {
+                    throw ValidationException::withMessages([
+                        'estoque' => 'Há uma quantidade inválida no carrinho. Atualize os itens antes de finalizar.',
+                    ])->redirectTo(route('carrinho.index'));
+                }
+                $quantidades[$item->livro_id] = ($quantidades[$item->livro_id] ?? 0) + $item->quantidade;
+            }
+
+            // Todos os pedidos bloqueiam os livros na mesma ordem.
+            $livros = Livro::whereIn('id', array_keys($quantidades))
+                ->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+
+            foreach ($quantidades as $livroId => $quantidade) {
+                $livro = $livros->get($livroId);
+                if (!$livro) {
+                    throw ValidationException::withMessages([
+                        'estoque' => 'Um dos livros do carrinho não está mais disponível.',
+                    ])->redirectTo(route('carrinho.index'));
+                }
+                if ($livro->estoque < $quantidade) {
+                    throw ValidationException::withMessages([
+                        'estoque' => "Estoque insuficiente para \"{$livro->titulo}\". Disponível: {$livro->estoque}.",
+                    ])->redirectTo(route('carrinho.index'));
+                }
+            }
+
+            foreach ($quantidades as $livroId => $quantidade) {
+                $livros->get($livroId)->decrement('estoque', $quantidade);
+            }
+
             $pedido = Pedido::create([
                 'user_id' => $userId,
                 'cartao_id' => $validated['cartao_id'],
@@ -74,9 +112,8 @@ class PedidoController extends Controller
 
             $valorTotalGeral = 0;
 
-            // 2. Transfere os itens para a tabela PedidoItem
             foreach ($itensCarrinho as $item) {
-                $subtotal = $item->livro->preco * $item->quantidade;
+                $subtotal = $livros->get($item->livro_id)->preco * $item->quantidade;
                 $valorTotalGeral += $subtotal;
 
                 PedidoItem::create([
@@ -87,19 +124,21 @@ class PedidoController extends Controller
                 ]);
             }
 
-            // 3. Atualiza o valor consolidado do pedido
             $pedido->update(['valor_total' => $valorTotalGeral]);
-
-            // 4. Limpa o carrinho
             $itensCarrinho->each->delete();
 
-            return $pedido;
-        });
+            return ['pedido' => $pedido, 'itens' => $itensCarrinho->count()];
+        }, 3);
 
-        // Redireciona para a listagem se tudo correr bem
+        if (!$resultado) {
+            ActivityLog::write('order.empty_cart', [], 'warning');
+            return redirect()->route('carrinho.index')->with('error', 'Seu carrinho está vazio.');
+        }
+
+        $pedido = $resultado['pedido'];
         ActivityLog::write('order.completed', [
             'pedido_id' => $pedido->id,
-            'item_count' => $itensCarrinho->count(),
+            'item_count' => $resultado['itens'],
             'valor_total' => $pedido->valor_total,
         ]);
         return redirect()->route('pedidos.index')->with('success', "Pedido #{$pedido->id} finalizado com sucesso!");

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CarrinhoController;
+use App\Http\Controllers\CartaoController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\LivroController;
 use App\Http\Controllers\PedidoController;
@@ -24,6 +25,9 @@ Route::middleware([CheckIsLogged::class])->group(function () {
     Route::get('/livros/{id}/editar', [LivroController::class, 'editar'])->name('livros.editar');
     Route::put('/livros/{id}', [LivroController::class, 'update'])->name('livros.update');
     Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos.index');
+    Route::get('/cartoes', [CartaoController::class, 'index'])->name('cartoes.index');
+    Route::post('/cartoes', [CartaoController::class, 'store'])->name('cartoes.store');
+    Route::delete('/cartoes/{cartao}', [CartaoController::class, 'destroy'])->name('cartoes.destroy');
 });
 
 Route::middleware([CheckIsNotLogged::class])->group(function () {

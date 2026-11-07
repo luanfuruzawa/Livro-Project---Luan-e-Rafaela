@@ -3,27 +3,38 @@
 namespace Tests\Feature;
 
 use App\Models\Carrinho;
+use App\Models\Cartao;
 use App\Models\Pedido;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 use Tests\Support\StoreTestCase;
 
 class StoreFlowsTest extends StoreTestCase
 {
     public function test_guest_is_redirected_from_all_private_pages(): void
     {
-        foreach (['/home_page', '/novo-livro', '/pesquisar-livro', '/carrinho', '/pedidos', '/livros/1/editar'] as $url) {
+        foreach (['/home_page', '/novo-livro', '/pesquisar-livro', '/carrinho', '/pedidos', '/cartoes', '/livros/1/editar'] as $url) {
             $this->get($url)->assertRedirect('/login');
         }
     }
 
     public function test_guest_cannot_change_store_data(): void
     {
-        foreach (['/livros/guardar', '/carrinho/adicionar', '/carrinho/atualizar', '/carrinho/remover', '/carrinho/limpar', '/pedido/finalizar'] as $url) {
+        foreach (['/livros/guardar', '/carrinho/adicionar', '/carrinho/atualizar', '/carrinho/remover', '/carrinho/limpar', '/pedido/finalizar', '/cartoes'] as $url) {
             $this->post($url)->assertRedirect('/login');
         }
         $this->put('/livros/1')->assertRedirect('/login');
         $this->delete('/livros/1')->assertRedirect('/login');
+        $cartao = Cartao::create([
+            'user_id' => User::factory()->create()->id,
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Visa',
+            'ultimos_quatro' => '1234',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+        ]);
+        $this->delete("/cartoes/{$cartao->id}")->assertRedirect('/login');
     }
 
     public function test_registration_creates_a_regular_user_and_session(): void
@@ -135,14 +146,47 @@ class StoreFlowsTest extends StoreTestCase
     public function test_checkout_saves_total_items_and_clears_cart(): void
     {
         $user = $this->loginAs();
+        $cartao = $user->cartoes()->create([
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Visa',
+            'ultimos_quatro' => '1234',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+        ]);
         $book = $this->book();
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 2]);
-        $this->post('/pedido/finalizar')->assertRedirect('/pedidos')->assertSessionHas('success');
+        $this->get('/carrinho')->assertOk()->assertSee('Visa')->assertSee('1234');
+        $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])
+            ->assertRedirect('/pedidos')->assertSessionHas('success');
         $order = Pedido::firstOrFail();
+        $this->assertSame($cartao->id, $order->cartao_id);
         $this->assertEquals(51.00, $order->valor_total);
         $this->assertDatabaseHas('pedido_itens', ['pedido_id' => $order->id, 'quantidade' => 2, 'valor_total' => 51.00]);
         $this->assertDatabaseCount('carrinhos', 0);
-        $this->get('/pedidos')->assertOk()->assertSee($book->titulo)->assertSee('51,00');
+        $this->get('/pedidos')->assertOk()->assertSee($book->titulo)->assertSee('51,00')->assertSee('1234');
+    }
+
+    public function test_checkout_requires_a_card_owned_by_the_logged_in_user(): void
+    {
+        $user = $this->loginAs();
+        $otherUser = User::factory()->create();
+        $otherCard = $otherUser->cartoes()->create([
+            'titular' => 'Outra Pessoa',
+            'bandeira' => 'Mastercard',
+            'ultimos_quatro' => '5678',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+        ]);
+        $book = $this->book();
+        Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
+
+        $this->from('/carrinho')->post('/pedido/finalizar')->assertRedirect('/carrinho')
+            ->assertSessionHasErrors('cartao_id');
+        $this->from('/carrinho')->post('/pedido/finalizar', ['cartao_id' => $otherCard->id])
+            ->assertRedirect('/carrinho')->assertSessionHasErrors('cartao_id');
+
+        $this->assertDatabaseCount('pedidos', 0);
+        $this->assertDatabaseHas('carrinhos', ['user_id' => $user->id, 'livro_id' => $book->id]);
     }
 
     public function test_empty_checkout_does_not_create_order(): void
@@ -158,5 +202,93 @@ class StoreFlowsTest extends StoreTestCase
         $other = User::factory()->create();
         Pedido::create(['user_id' => $other->id, 'valor_total' => 987.65]);
         $this->get('/pedidos')->assertOk()->assertDontSee('987,65');
+    }
+
+    public function test_user_can_register_and_list_a_demonstration_card(): void
+    {
+        $user = $this->loginAs();
+
+        $this->post('/cartoes', [
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Visa',
+            'ultimos_quatro' => '1234',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+        ])->assertRedirect('/cartoes')->assertSessionHas('success');
+
+        $this->assertDatabaseHas('cartoes', [
+            'user_id' => $user->id,
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Visa',
+            'ultimos_quatro' => '1234',
+        ]);
+        $this->assertFalse(Schema::hasColumn('cartoes', 'numero'));
+        $this->assertFalse(Schema::hasColumn('cartoes', 'cvv'));
+        $this->get('/cartoes')->assertOk()->assertSee('Visa')->assertSee('1234');
+    }
+
+    public function test_card_registration_rejects_full_number_and_security_code(): void
+    {
+        $this->loginAs();
+
+        $this->from('/cartoes')->post('/cartoes', [
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Visa',
+            'ultimos_quatro' => '1234',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+            'numero_cartao' => '4111111111111111',
+            'cvv' => '123',
+        ])->assertRedirect('/cartoes')
+            ->assertSessionHasErrors(['numero_cartao', 'cvv']);
+
+        $this->assertDatabaseCount('cartoes', 0);
+    }
+
+    public function test_card_registration_rejects_invalid_demo_data(): void
+    {
+        $this->loginAs();
+
+        $this->from('/cartoes')->post('/cartoes', [
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Outra',
+            'ultimos_quatro' => '12345',
+            'validade_mes' => 1,
+            'validade_ano' => now()->year - 1,
+        ])->assertRedirect('/cartoes')
+            ->assertSessionHasErrors(['bandeira', 'ultimos_quatro', 'validade_ano']);
+
+        $this->assertDatabaseCount('cartoes', 0);
+    }
+
+    public function test_user_cannot_delete_another_users_card(): void
+    {
+        $this->loginAs();
+        $other = User::factory()->create();
+        $cartao = $other->cartoes()->create([
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Visa',
+            'ultimos_quatro' => '1234',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+        ]);
+
+        $this->delete("/cartoes/{$cartao->id}")->assertForbidden();
+        $this->assertDatabaseHas('cartoes', ['id' => $cartao->id]);
+    }
+
+    public function test_user_can_delete_own_card(): void
+    {
+        $user = $this->loginAs();
+        $cartao = $user->cartoes()->create([
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Elo',
+            'ultimos_quatro' => '9876',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+        ]);
+
+        $this->delete("/cartoes/{$cartao->id}")->assertRedirect('/cartoes');
+        $this->assertDatabaseMissing('cartoes', ['id' => $cartao->id]);
     }
 }

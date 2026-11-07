@@ -49,6 +49,13 @@
                 <span>Meus Pedidos</span>
             </a>
         </li>
+        <li>
+            <a href="{{ route('cartoes.index') }}"
+                class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
+                <i class="fa-solid fa-credit-card me-3 text-white-50"></i>
+                <span>Cartões</span>
+            </a>
+        </li>
     </ul>
     <hr class="border-secondary opacity-25">
     <div>

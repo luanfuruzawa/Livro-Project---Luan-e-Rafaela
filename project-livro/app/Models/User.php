@@ -13,6 +13,12 @@ class User extends Model
         return $this->belongsToMany(Livro::class, 'carrinhos')
             ->withPivot('quantidade');
     }
+
+    public function cartoes()
+    {
+        return $this->hasMany(Cartao::class);
+    }
+
     protected $fillable = [
         'username',
         'email',

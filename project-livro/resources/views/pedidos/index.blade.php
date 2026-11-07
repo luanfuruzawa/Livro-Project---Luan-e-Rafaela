@@ -34,6 +34,13 @@
                                 </div>
                             </div>
 
+                            @if($pedido->cartao)
+                                <div class="px-3 py-2 bg-light border-bottom text-muted">
+                                    <i class="fa-solid fa-credit-card me-2"></i>
+                                    Cartão: {{ $pedido->cartao->bandeira }} •••• {{ $pedido->cartao->ultimos_quatro }}
+                                </div>
+                            @endif
+
                             <!-- Corpo do Card / Itens do Pedido -->
                             <div class="card-body p-0">
                                 <div class="table-responsive">

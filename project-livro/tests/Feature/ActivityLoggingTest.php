@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Carrinho;
+use App\Models\Cartao;
 use App\Models\User;
 use App\Support\ActivityLog;
 use Illuminate\Http\UploadedFile;
@@ -44,15 +45,27 @@ class ActivityLoggingTest extends StoreTestCase
         }, file($this->logPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
     }
 
+    private function demonstrationCardFor(User $user): Cartao
+    {
+        return $user->cartoes()->create([
+            'titular' => 'Pessoa Ficticia',
+            'bandeira' => 'Visa',
+            'ultimos_quatro' => '1234',
+            'validade_mes' => now()->month,
+            'validade_ano' => now()->year,
+        ]);
+    }
+
     public function test_order_and_error_events_match_their_exact_http_request_without_duplicates(): void
     {
         $user = $this->loginAs();
+        $cartao = $this->demonstrationCardFor($user);
         $book = $this->book();
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
-        $success = $this->post('/pedido/finalizar')->assertRedirect('/pedidos');
+        $success = $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertRedirect('/pedidos');
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
         $book->delete();
-        $failure = $this->post('/pedido/finalizar')->assertStatus(500);
+        $failure = $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertStatus(500);
 
         foreach ([[$success, 'order.completed', 'INFO', 302], [$failure, 'application.exception', 'ERROR', 500]] as [$response, $event, $level, $status]) {
             $requestId = $response->headers->get('X-Request-ID');
@@ -163,9 +176,10 @@ class ActivityLoggingTest extends StoreTestCase
     public function test_order_success_and_empty_cart_are_logged(): void
     {
         $user = $this->loginAs();
+        $cartao = $this->demonstrationCardFor($user);
         $book = $this->book();
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 2]);
-        $this->post('/pedido/finalizar')->assertRedirect('/pedidos');
+        $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertRedirect('/pedidos');
         $this->post('/pedido/finalizar')->assertSessionHas('error');
         $this->assertStringContainsString('order.completed', $this->logs());
         $this->assertStringContainsString('order.empty_cart', $this->logs());
@@ -175,10 +189,11 @@ class ActivityLoggingTest extends StoreTestCase
     public function test_failed_order_is_rolled_back_and_logs_safe_exception_metadata(): void
     {
         $user = $this->loginAs();
+        $cartao = $this->demonstrationCardFor($user);
         $book = $this->book();
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
         $book->delete();
-        $this->post('/pedido/finalizar')->assertStatus(500);
+        $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertStatus(500);
         $this->assertDatabaseCount('pedidos', 0);
         $this->assertDatabaseCount('pedido_itens', 0);
         $this->assertDatabaseCount('carrinhos', 1);
@@ -207,6 +222,7 @@ class ActivityLoggingTest extends StoreTestCase
     public function test_logging_failure_does_not_break_a_successful_order(): void
     {
         $user = $this->loginAs();
+        $cartao = $this->demonstrationCardFor($user);
         $book = $this->book();
         Carrinho::create(['user_id' => $user->id, 'livro_id' => $book->id, 'quantidade' => 1]);
         $originalLogger = Log::getFacadeRoot();
@@ -214,7 +230,7 @@ class ActivityLoggingTest extends StoreTestCase
             Log::partialMock()->shouldReceive('channel')->with('activity')
                 ->andThrow(new \RuntimeException('Simulated unavailable log'));
 
-            $this->post('/pedido/finalizar')->assertRedirect('/pedidos');
+            $this->post('/pedido/finalizar', ['cartao_id' => $cartao->id])->assertRedirect('/pedidos');
             $this->assertDatabaseCount('pedidos', 1);
             $this->assertDatabaseCount('carrinhos', 0);
         } finally {

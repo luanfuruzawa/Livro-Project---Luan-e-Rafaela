@@ -6,6 +6,16 @@
 
         <div class="flex-grow-1 p-4 p-md-5 min-vh-100 bg-light">
             <div class="container-fluid" style="max-width: 1000px;">
+                @if(session('error'))
+                    <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                @error('cartao_id')
+                    <div class="alert alert-danger border-0 shadow-sm mb-4" role="alert">
+                        {{ $message }}
+                    </div>
+                @enderror
 
                 <!-- Cabeçalho -->
                 <div class="card border-0 shadow-sm rounded-3 bg-white p-4 mb-4">
@@ -125,12 +135,35 @@
                                     </span>
                                 </div>
 
-                                <form action="{{ route('pedido.finalizar') }}" method="POST" class="m-0">
-                                    @csrf
-                                    <button type="submit" class="btn btn-dark btn-lg w-100 fw-semibold shadow-sm mb-2">
-                                        <i class="fa-solid fa-credit-card me-2"></i> Finalizar Pedido
-                                    </button>
-                                </form>
+                                @if($cartoes->isNotEmpty())
+                                    <form action="{{ route('pedido.finalizar') }}" method="POST" class="m-0">
+                                        @csrf
+                                        <label for="cartao_id" class="form-label fw-semibold">Cartão demonstrativo</label>
+                                        <select id="cartao_id" name="cartao_id"
+                                            class="form-select mb-2 @error('cartao_id') is-invalid @enderror" required>
+                                            <option value="">Escolha um cartão</option>
+                                            @foreach($cartoes as $cartao)
+                                                <option value="{{ $cartao->id }}" @selected((string) old('cartao_id') === (string) $cartao->id)>
+                                                    {{ $cartao->bandeira }} •••• {{ $cartao->ultimos_quatro }}
+                                                    ({{ sprintf('%02d/%04d', $cartao->validade_mes, $cartao->validade_ano) }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('cartao_id')
+                                            <div class="invalid-feedback d-block mb-2">{{ $message }}</div>
+                                        @enderror
+                                        <button type="submit" class="btn btn-dark btn-lg w-100 fw-semibold shadow-sm mb-2">
+                                            <i class="fa-solid fa-credit-card me-2"></i> Finalizar Pedido
+                                        </button>
+                                    </form>
+                                @else
+                                    <p class="text-muted small">
+                                        Cadastre um cartão para selecionar no checkout.
+                                    </p>
+                                    <a href="{{ route('cartoes.index') }}" class="btn btn-dark w-100 mb-2">
+                                        Cadastrar cartão
+                                    </a>
+                                @endif
                                 <a href="{{ route('home_page') }}" class="btn btn-outline-secondary w-100 fw-semibold">
                                     Continuar Comprando
                                 </a>

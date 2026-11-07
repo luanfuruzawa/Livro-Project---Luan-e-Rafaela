@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Carrinho;
+use App\Models\Cartao;
 use App\Models\Livro;
 use Illuminate\Http\Request;
 use App\Support\ActivityLog;
@@ -22,7 +23,9 @@ class CarrinhoController extends Controller
         ->where('user_id', $userId)
         ->get();
 
-        return view('usuario.carrinho', compact('carrinho'));
+        $cartoes = Cartao::where('user_id', $userId)->latest()->get();
+
+        return view('usuario.carrinho', compact('carrinho', 'cartoes'));
     }
 
     public function adicionarCarrinho(Request $request)

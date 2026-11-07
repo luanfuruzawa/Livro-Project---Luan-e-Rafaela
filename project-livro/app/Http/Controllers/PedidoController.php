@@ -91,7 +91,7 @@ class PedidoController extends Controller
             $pedido->update(['valor_total' => $valorTotalGeral]);
 
             // 4. Limpa o carrinho
-            Carrinho::where('user_id', $userId)->delete();
+            $itensCarrinho->each->delete();
 
             return $pedido;
         });

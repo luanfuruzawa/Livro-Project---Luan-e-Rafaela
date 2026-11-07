@@ -90,7 +90,9 @@ class CarrinhoController extends Controller
         $userId = $usuario['id'] ?? null;
         $livroId = $request->input('livro_id');
 
-        $removed = Carrinho::where('user_id', $userId)->where('livro_id', $livroId)->delete();
+        $items = Carrinho::where('user_id', $userId)->where('livro_id', $livroId)->get();
+        $items->each->delete();
+        $removed = $items->count();
         if ($removed) {
             ActivityLog::write('cart.item_removed', ['livro_id' => (int) $livroId]);
         }
@@ -103,7 +105,9 @@ class CarrinhoController extends Controller
         $usuario = session('user');
         $userId = $usuario['id'] ?? null;
 
-        $removed = Carrinho::where('user_id', $userId)->delete();
+        $items = Carrinho::where('user_id', $userId)->get();
+        $items->each->delete();
+        $removed = $items->count();
         ActivityLog::write('cart.cleared', ['item_count' => $removed]);
 
         return redirect()->route('carrinho.index');

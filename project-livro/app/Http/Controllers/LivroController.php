@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Livro;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Support\ActivityLog;
 
 class LivroController extends Controller
 {
@@ -29,7 +30,7 @@ class LivroController extends Controller
         // Salva a foto na pasta
         $imagem->move(public_path('images'), $nomeImagem);
 
-        Livro::create([
+        $livro = Livro::create([
             'titulo' => $request->titulo,
             'genero' => $request->genero,
             'preco' => $request->preco,
@@ -37,33 +38,36 @@ class LivroController extends Controller
             'caminho_imagem' => $nomeImagem,
 
         ]);
+        ActivityLog::write('book.created', ['livro_id' => $livro->id]);
         return redirect()->route('home_page');
 
     }
     public function pesquisarLivro(Request $request)
-    {
-        $titulo = $request->input('titulo-livro');
-        $genero = $request->input('genero');
-
-        $query = Livro::query();
-
-        if (!empty($titulo)) {
-            $query->where('titulo', 'LIKE', '%' . $titulo . '%');
-        }
-
-        if (!empty($genero)) {
-            $query->where('genero', $genero);
-        }
-
-        $livros = $query->get();
-
-        return view('livro.pesquisar_livro', compact('livros'));
+{
+    $titulo = $request->input('titulo-livro');
+    $genero = $request->input('genero');
+    
+    $query = Livro::query();
+    
+    if (!empty($titulo)) {
+        $query->where('titulo', 'LIKE', '%' . $titulo . '%');
     }
+    
+    if (!empty($genero)) {
+        $query->where('genero', $genero);
+    }
+    
+    $livros = $query->simplePaginate(6)->appends($request->query());
+
+    // Passa $titulo e $genero para manter o estado na view
+    return view('livro.pesquisar_livro', compact('livros', 'titulo', 'genero'));
+}
     public function destroy($id)
     {
         $livro = Livro::findOrFail($id);
 
        $livro->delete();
+       ActivityLog::write('book.deleted', ['livro_id' => $livro->id]);
 
         return redirect()->back()->with('sucesso', 'Livro removido com sucesso!');
     }public function editar($id)
@@ -96,6 +100,7 @@ public function update(Request $request, $id)
     }
 
     $livro->save();
+    ActivityLog::write('book.updated', ['livro_id' => $livro->id]);
 
     return redirect()->route('home_page')->with('sucesso', 'Livro atualizado com sucesso!');
 }

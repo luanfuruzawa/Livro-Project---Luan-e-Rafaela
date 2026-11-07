@@ -3,11 +3,13 @@
 use App\Http\Controllers\CarrinhoController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\LivroController;
+use App\Http\Controllers\PedidoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckIsLogged;
 use App\Http\Middleware\CheckIsNotLogged;
 
 Route::middleware([CheckIsLogged::class])->group(function () {
+    Route::post('/pedido/finalizar', [PedidoController::class, 'finalizar'])->name('pedido.finalizar');
     Route::get('/home_page', [MainController::class, 'homePage'])->name('home_page');
     Route::get('/logout', [MainController::class, 'logout'])->name('logout');
     Route::get('/novo-livro', [LivroController::class, 'novoLivro'])->name('novo_livro');
@@ -21,9 +23,7 @@ Route::middleware([CheckIsLogged::class])->group(function () {
     Route::post('/carrinho/limpar', [CarrinhoController::class, 'limparCarrinho'])->name('carrinho.limpar');
     Route::get('/livros/{id}/editar', [LivroController::class, 'editar'])->name('livros.editar');
     Route::put('/livros/{id}', [LivroController::class, 'update'])->name('livros.update');
-
-
-
+    Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos.index');
 });
 
 Route::middleware([CheckIsNotLogged::class])->group(function () {

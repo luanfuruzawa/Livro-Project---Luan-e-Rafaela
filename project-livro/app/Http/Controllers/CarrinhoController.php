@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Carrinho;
 use App\Models\Livro;
 use Illuminate\Http\Request;
+use App\Support\ActivityLog;
 
 class CarrinhoController extends Controller
 {
@@ -31,6 +32,7 @@ class CarrinhoController extends Controller
         $livroId = $request->input('livro_id');
         $livroExiste = Livro::where('id', $livroId)->exists();
     if (!$livroExiste) {
+        ActivityLog::write('cart.book_unavailable', [], 'warning');
         return redirect()->back()->with('error', 'Este livro não está mais disponível.');
     }
         $quantidade = (int) $request->input('quantidade', 1);
@@ -49,6 +51,10 @@ class CarrinhoController extends Controller
             ]);
         }
 
+        ActivityLog::write('cart.item_added', [
+            'livro_id' => (int) $livroId,
+            'quantidade' => $quantidade,
+        ]);
         return redirect()->route('carrinho.index')->with('success', 'Livro adicionado ao carrinho!');
     }
 
@@ -65,8 +71,10 @@ class CarrinhoController extends Controller
         if ($item) {
             if ($quantidade > 0) {
                 $item->update(['quantidade' => $quantidade]);
+                ActivityLog::write('cart.item_updated', ['livro_id' => $item->livro_id, 'quantidade' => $quantidade]);
             } else {
                 $item->delete();
+                ActivityLog::write('cart.item_removed', ['livro_id' => $item->livro_id]);
             }
         }
 
@@ -79,7 +87,10 @@ class CarrinhoController extends Controller
         $userId = $usuario['id'] ?? null;
         $livroId = $request->input('livro_id');
 
-        Carrinho::where('user_id', $userId)->where('livro_id', $livroId)->delete();
+        $removed = Carrinho::where('user_id', $userId)->where('livro_id', $livroId)->delete();
+        if ($removed) {
+            ActivityLog::write('cart.item_removed', ['livro_id' => (int) $livroId]);
+        }
 
         return redirect()->route('carrinho.index');
     }
@@ -89,7 +100,8 @@ class CarrinhoController extends Controller
         $usuario = session('user');
         $userId = $usuario['id'] ?? null;
 
-        Carrinho::where('user_id', $userId)->delete();
+        $removed = Carrinho::where('user_id', $userId)->delete();
+        ActivityLog::write('cart.cleared', ['item_count' => $removed]);
 
         return redirect()->route('carrinho.index');
     }

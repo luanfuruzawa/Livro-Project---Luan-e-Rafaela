@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Livro;
 use Hash;
 use Illuminate\Http\Request;
+use App\Support\ActivityLog;
 
 class MainController extends Controller
 {
@@ -51,6 +52,7 @@ class MainController extends Controller
                 'nivel_acesso' => $user->nivel_acesso
             ]
         ]);
+        ActivityLog::write('auth.registered', ['user_id' => $user->id]);
         return redirect()->route('home_page');
     }
 
@@ -61,7 +63,7 @@ class MainController extends Controller
 
     public function logout()
     {
-
+        ActivityLog::write('auth.logged_out');
         session()->forget('user');
 
         return redirect()->route('login');
@@ -83,6 +85,7 @@ class MainController extends Controller
         $user = User::where('email', $request->input('email'))->first();
 
         if (!$user || !password_verify($request->input('senha'), $user->password)) {
+            ActivityLog::write('auth.login_failed', [], 'warning');
             return redirect()->back()->withInput()->with('login_error', 'E-mail ou senha incorretos!');
         }
 
@@ -96,15 +99,15 @@ class MainController extends Controller
             ]
         ]);
 
+        ActivityLog::write('auth.logged_in', ['user_id' => $user->id]);
         return redirect()->route('home_page');
     }
     public function homePage()
-    {
-        $nivel_acesso = (session('user')['nivel_acesso']) ?? 'user';
-        $livros = Livro::all();
-        return view('home_page', compact('livros', 'nivel_acesso'));
-        return view('home_page');
-    }
+{
+    $nivel_acesso = (session('user')['nivel_acesso']) ?? 'user';
+    $livros = Livro::simplePaginate(12);
+    return view('home_page', compact('livros', 'nivel_acesso'));
+}
     public function novoLivro()
     {
         return view('livro.novo_livro');
@@ -138,24 +141,7 @@ class MainController extends Controller
 
     }
 
-    public function pesquisarLivro(Request $request)
-    {
-        $titulo = $request->input('titulo-livro');
-        $genero = $request->input('genero');
-        $query = Livro::query();
-        if (!empty($titulo)) {
-            $query->where('titulo', 'LIKE', '%' . $titulo . '%');
-        }
-        // daqui pra frente adiciona como se fosse um 'AND' no banco de dados
-        if (!empty($genero)) {
-            $query->where('genero', $genero);
-        }
-        $livros = $query->get();
-
-
-        // Passa $titulo e $genero para manter o estado do input/select na view
-        return view('livro.pesquisar_livro', compact('livros', 'titulo', 'genero'));
-    }
+    
 
     // Exibe a tela do carrinho
     public function verCarrinho()

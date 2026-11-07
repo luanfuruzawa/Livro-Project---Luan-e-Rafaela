@@ -15,7 +15,8 @@
             </div>
         </li>
         <li class="nav-item">
-            <a href="pesquisar-livro"
+            <!-- CORRIGIDO: Agora usando a rota correta do Laravel -->
+            <a href="{{ route('pesquisar.livro') }}"
                 class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
                 <i class="fa-solid fa-magnifying-glass me-3 text-white-50"></i>
                 <span>Pesquisar</span>
@@ -28,10 +29,10 @@
                 <span>Carrinho</span>
 
                 @php
-                    $userId = session('user')['id'];
-                    $totalItens = \App\Models\Carrinho::where('user_id', $userId)
+                    $userId = session('user')['id'] ?? null;
+                    $totalItens = $userId ? \App\Models\Carrinho::where('user_id', $userId)
                         ->whereHas('livro')
-                        ->sum('quantidade');
+                        ->sum('quantidade') : 0;
                 @endphp
 
                 @if($totalItens > 0)
@@ -39,6 +40,13 @@
                         {{ $totalItens }}
                     </span>
                 @endif
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('pedidos.index') }}"
+                class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
+                <i class="fa-solid fa-box-open me-3 text-white-50"></i>
+                <span>Meus Pedidos</span>
             </a>
         </li>
     </ul>

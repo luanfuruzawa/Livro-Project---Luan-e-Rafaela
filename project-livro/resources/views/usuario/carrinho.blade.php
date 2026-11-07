@@ -125,9 +125,12 @@
                                     </span>
                                 </div>
 
-                                <button class="btn btn-dark btn-lg w-100 fw-semibold shadow-sm mb-2">
-                                    Finalizar Pedido
-                                </button>
+                                <form action="{{ route('pedido.finalizar') }}" method="POST" class="m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-dark btn-lg w-100 fw-semibold shadow-sm mb-2">
+                                        <i class="fa-solid fa-credit-card me-2"></i> Finalizar Pedido
+                                    </button>
+                                </form>
                                 <a href="{{ route('home_page') }}" class="btn btn-outline-secondary w-100 fw-semibold">
                                     Continuar Comprando
                                 </a>

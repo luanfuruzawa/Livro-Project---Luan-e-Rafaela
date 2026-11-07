@@ -56,6 +56,15 @@
                 <span>Cartões</span>
             </a>
         </li>
+        @can('admin')
+            <li>
+                <a href="{{ route('historico.index') }}"
+                    class="nav-link text-white bg-secondary bg-opacity-25 d-flex align-items-center py-2 px-3 rounded">
+                    <i class="fa-solid fa-clock-rotate-left me-3 text-white-50"></i>
+                    <span>Histórico</span>
+                </a>
+            </li>
+        @endcan
     </ul>
     <hr class="border-secondary opacity-25">
     <div>

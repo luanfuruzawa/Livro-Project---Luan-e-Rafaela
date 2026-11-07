@@ -27,5 +27,23 @@ final class ActivityLog
             // Falhas de escrita não devem interromper a operação.
             error_log('Activity log unavailable: '.get_class($exception));
         }
+
+        $accessEvents = [
+            'auth.registered' => 'Cadastro realizado',
+            'auth.logged_in' => 'Login realizado',
+            'auth.login_failed' => 'Falha no login',
+            'auth.logged_out' => 'Logout realizado',
+        ];
+
+        if (isset($accessEvents[$event])) {
+            try {
+                activity('acesso')
+                    ->event($event)
+                    ->withProperties(['request_id' => $base['request_id']])
+                    ->log($accessEvents[$event]);
+            } catch (Throwable $exception) {
+                error_log('History log unavailable: '.get_class($exception));
+            }
+        }
     }
 }

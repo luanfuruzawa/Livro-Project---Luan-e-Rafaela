@@ -5,11 +5,13 @@ use App\Http\Controllers\CartaoController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\LivroController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\HistoricoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckIsLogged;
 use App\Http\Middleware\CheckIsNotLogged;
 
 Route::middleware([CheckIsLogged::class])->group(function () {
+    Route::get('/historico', [HistoricoController::class, 'index'])->middleware('can:admin')->name('historico.index');
     Route::post('/pedido/finalizar', [PedidoController::class, 'finalizar'])->name('pedido.finalizar');
     Route::get('/home_page', [MainController::class, 'homePage'])->name('home_page');
     Route::get('/logout', [MainController::class, 'logout'])->name('logout');

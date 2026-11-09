@@ -1,185 +1,80 @@
 # Projeto Livro — Luan e Rafaela
-
-Aplicação web para uma livraria, desenvolvida com **Laravel 12**, **PHP**, **Blade** e SQLite. O projeto permite criar contas e entrar no sistema, consultar e pesquisar livros, gerenciar o catálogo, adicionar itens ao carrinho, registrar pedidos e administrar cartões cadastrados. Há também uma área de histórico restrita a usuários com permissão de administrador.
-
 > O código Laravel está dentro da pasta `projeto-livro/`. Execute os comandos de instalação e do Artisan a partir dessa pasta.
-
-## Requisitos
-
-- **PHP 8.2 ou superior**, com as extensões exigidas pelo Laravel e pelo Composer. Para a configuração SQLite descrita abaixo, o PHP precisa ter suporte a SQLite/PDO SQLite habilitado.
-- **Composer**.
-- Um navegador.
-
-O repositório já contém os arquivos compilados de frontend em `projeto-livro/build/`. Portanto, para iniciar a aplicação localmente, **não é necessário instalar Node.js/npm** nem executar `npm install` ou `npm run build`. O Composer, por si só, não instala o PHP: confirme que o comando `php` está disponível no terminal.
-
-Confira as instalações:
-
-```bash
-php -v
-composer --version
-```
 
 ## Instalação local
 
 Abra um terminal na pasta em que deseja guardar o projeto e clone o repositório:
-
-```bash
+```
 git clone https://github.com/luanfuruzawa/Livro-Project---Luan-e-Rafaela.git
 cd Livro-Project---Luan-e-Rafaela/projeto-livro
 ```
-
-Se não tiver Git, baixe o ZIP do repositório pelo GitHub, extraia os arquivos e abra o terminal em `projeto-livro/`.
-
-Instale as dependências PHP declaradas em `composer.lock`:
-
-```bash
-composer install
+Após ter o repositório localmente, é necessário ter as dependências do composer, por isso, se usa o comando: 
 ```
-
-Crie o arquivo local de configuração `.env` a partir do modelo:
-
-```bash
-cp .env.example .env
+composer update
 ```
-
-No Windows PowerShell, use:
-
-```powershell
-Copy-Item .env.example .env
+Crie o arquivo local de configuração `.env` a partir do env.example, copiando o arquivo e colando deixando o nome apenas '.env'
+Gere a chave da aplicação:
 ```
-
-Gere a chave de criptografia da aplicação:
-
-```bash
 php artisan key:generate
 ```
 
-Crie o arquivo de banco SQLite vazio. No macOS/Linux:
+Crie o banco de dados com o Mysql utilizando, se quiser, os seeders para ter exemplos.
 
-```bash
-touch database/database.sqlite
 ```
-
-No Windows PowerShell:
-
-```powershell
-New-Item -ItemType File -Path database/database.sqlite -Force
+php artisan migrate --seed
 ```
-
-Aplique as migrations para criar as tabelas:
-
-```bash
-php artisan migrate
+Por fim, inicie o servidor local com a aplicação:
 ```
-
-Por fim, inicie o servidor local:
-
-```bash
 php artisan serve
 ```
 
 Acesse o endereço mostrado pelo Artisan — normalmente <http://127.0.0.1:8000> — no navegador. Para encerrar o servidor, pressione `Ctrl+C` no terminal.
 
 ## Configuração do `.env`
-
-O arquivo `projeto-livro/.env.example` é o modelo versionado. O `.env` é a configuração particular da sua instalação e não deve ser compartilhado ou enviado ao Git. Não coloque senhas ou dados reais de cartão nesse arquivo.
-
-A configuração recomendada para executar localmente com SQLite é:
-
-```dotenv
-APP_NAME="Projeto Livro"
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://127.0.0.1:8000
-
-DB_CONNECTION=sqlite
-
-SESSION_DRIVER=file
-CACHE_STORE=file
-QUEUE_CONNECTION=sync
+A configuração recomendada para executar localmente com Mysql é:
 ```
-
-Após copiar o arquivo de exemplo, ajuste esses valores em `.env` se necessário. O comando `php artisan key:generate` preencherá `APP_KEY`; não invente essa chave manualmente. Os valores `file` e `sync` evitam depender de tabelas de cache, sessão e fila para uma execução local básica. A aplicação persiste os dados principais no SQLite.
-
-Se alterar configurações e o Laravel continuar usando valores antigos, limpe o cache de configuração:
-
-```bash
-php artisan config:clear
-```
-
-### Usar MySQL (opcional)
-
-SQLite é o caminho mais simples para testar localmente e não exige instalar ou configurar um servidor de banco separado. Se você já tiver um servidor MySQL disponível, crie nele um banco vazio e ajuste as variáveis abaixo no `.env`:
-
-```dotenv
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=nome_do_banco
-DB_USERNAME=usuario
-DB_PASSWORD=sua_senha
+DB_USERNAME=usuario_do_banco
+DB_PASSWORD=sua_senha_do_banco
 ```
+Substitua os valores de exemplo pelos dados do seu banco. Depois execute `php artisan config:clear` e `php artisan migrate`.
 
-Substitua os valores de exemplo pelos dados do seu banco. Depois execute `php artisan config:clear` e `php artisan migrate`. Um servidor MySQL não é fornecido pelo Composer nem pelo Laravel.
-
-## Comandos úteis
-
+## Outros comandos úteis
 Execute-os dentro de `projeto-livro/`:
-
-| Comando | O que faz |
-| --- | --- |
-| `composer install` | Instala as dependências PHP do projeto. |
-| `php artisan serve` | Inicia o servidor de desenvolvimento local. |
-| `php artisan migrate` | Cria/aplica as tabelas definidas nas migrations. |
-| `php artisan migrate:status` | Mostra quais migrations já foram executadas. |
-| `php artisan route:list` | Lista as rotas disponíveis. |
+| `composer install` | Instala as dependências PHP do projeto.                          |
+| `php artisan serve` | Inicia o servidor de desenvolvimento local.                     |
+| `php artisan migrate` | Cria/aplica as tabelas definidas nas migrations.              |
 | `php artisan config:clear` | Limpa o cache de configuração após alterações no `.env`. |
-| `php artisan test` | Executa os testes automatizados. |
 
-> Evite `php artisan migrate:fresh` em um banco com dados importantes: esse comando apaga as tabelas e as recria.
 
 ## Estrutura e exemplos do projeto
 
 Os arquivos principais da aplicação ficam organizados assim:
-
-```text
+```
 projeto-livro/
 ├── app/Http/Controllers/   # Lógica das telas e operações
 ├── app/Models/             # Modelos usados para acessar os dados
 ├── database/migrations/    # Definição das tabelas do banco
-├── public/                 # Ponto de entrada e arquivos públicos
 ├── resources/views/        # Páginas e componentes Blade
 ├── routes/web.php          # Rotas web
-├── build/                  # Assets de frontend já compilados
-├── .env.example            # Modelo de configuração local
-├── artisan                # CLI do Laravel
+├── .env                    # Modelo de configuração local
 └── composer.json           # Requisitos e dependências PHP
 ```
 
 Exemplos concretos:
-
 - `routes/web.php` registra rotas de cadastro e login, catálogo de livros, carrinho, pedidos, cartões e histórico.
 - `app/Http/Controllers/LivroController.php` implementa ações ligadas aos livros; `CarrinhoController.php` trata operações do carrinho e `PedidoController.php`, os pedidos.
 - `resources/views/home_page.blade.php` e as pastas `resources/views/livro/`, `carrinho/`, `pedidos/` e `cartoes/` contêm as telas Blade correspondentes.
 - `database/migrations/` define tabelas como `livros`, `carrinhos`, `pedidos`, itens de pedido e cartões. `php artisan migrate` cria essas tabelas no banco configurado.
 - `composer.json` informa a versão do PHP e do Laravel esperadas e lista as dependências instaladas pelo Composer.
 
-Para conferir os endereços disponíveis depois da instalação, execute:
-
-```bash
-php artisan route:list
-```
-
 ## Problemas comuns
-
 - **`php` não é reconhecido:** o PHP não está instalado ou não está no `PATH`. O Composer depende de uma instalação de PHP; instale/configure o PHP 8.2+ e abra um novo terminal.
 - **Erro de extensão SQLite ou `could not find driver`:** habilite a extensão SQLite/PDO SQLite na instalação do PHP usada no terminal.
 - **Erro de `APP_KEY`:** confirme que `.env` existe e execute `php artisan key:generate`.
 - **Erro ao abrir o banco:** confira se `database/database.sqlite` foi criado, se `DB_CONNECTION=sqlite` está definido e se o processo PHP tem permissão para gravar no arquivo e na pasta `database/`.
 - **Mudanças no `.env` não aparecem:** execute `php artisan config:clear`.
 - **Dependências incompatíveis:** confira `php -v` e use PHP 8.2 ou superior, conforme `composer.json`.
-
-## Observação de segurança
-
-Este é um projeto acadêmico e deve ser usado localmente para fins de estudo. Não o publique em produção sem revisar autenticação, autorização, validação, armazenamento de dados e configurações de segurança. Nunca use dados reais de cartão de pagamento em testes.

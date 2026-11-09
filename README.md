@@ -11,6 +11,7 @@ cd Livro-Project---Luan-e-Rafaela/projeto-livro
 Após ter o repositório localmente, é necessário ter as dependências do composer, por isso, se usa o comando: 
 ```
 composer update
+composer require spatie/laravel-activitylog
 ```
 Crie o arquivo local de configuração `.env` a partir do env.example, copiando o arquivo e colando deixando o nome apenas '.env'
 Gere a chave da aplicação:
